@@ -1,17 +1,47 @@
 #include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
+#include "Commands.h"
 #include "Tasks.h"
 #include "Utils.h"
+//#include "Wifi.h"
 
-// Global variables and constants
+/// Global task objects used by tasks
 void* gTaskParams[NUM_TASKS]{0};
-TaskHandle_t* gTaskHandles[NUM_TASKS]{0};
+TaskHandle_t gTaskHandles[NUM_TASKS]{0};
+MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
+
+
+/// Global Wifi objects used by tasks
+Wifi gWifi;
+
+/// Parameter objects used by tasks
+struct RecvCmdParams gRecvCmdParams{&gWifi.cmdReceiver, gTaskHandles, gMsgBufferHandles};
 
 void setup()
 {
   DEBUG_INIT;
   DEBUG_ENTER("setup()");
+
+  // Configure wifi access point
+  if (!gWifi.init())
+  {
+    DEBUG_PRINTLN("Failed to start WiFi interfaces! Stopping...");
+    while (true) { ; } // There was a failure start one of the Wifi interfaces. Block and loop forever
+  }
+
+  // Create task command buffers
+  bool allocStatus = createCmdBuffers(gMsgBufferHandles);
+  if (!allocStatus)
+  {
+    DEBUG_PRINTLN("Failed to allocate command buffers! Stopping...");
+    while (true) { ; } // There was a failure allocating command buffers. Block and loop forever
+  }
+
+  // Provide parameters to tasks which need them
+  gTaskParams[TASK_COLLECT_TELEMETRY] = &gWifi.telemSender;
+  gTaskParams[TASK_RECEIVE_COMMAND] = &gRecvCmdParams;
+  gTaskParams[TASK_MOVE_SERVO] = gMsgBufferHandles[TASK_MOVE_SERVO];
 
   BaseType_t result = createTasks(gTaskParams, gTaskHandles);
   if (result != pdPASS)
