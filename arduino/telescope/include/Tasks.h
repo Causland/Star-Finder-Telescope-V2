@@ -32,10 +32,10 @@ struct TaskReceiveCommandInfo
   static constexpr UBaseType_t PRIORITY{2};
 };
 
-/// Move Servo Task Info
-struct TaskMoveServoInfo
+/// Move Base Servos Task Info
+struct TaskMoveBaseServosInfo
 {
-  static constexpr const char* const NAME{"MoveServo"};
+  static constexpr const char* const NAME{"MoveBaseServos"};
   static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{100};
   static constexpr UBaseType_t PRIORITY{2};
 };
@@ -69,9 +69,9 @@ void taskCollectTelemetry(void* params);
 /// @param[in] params Holds parameters for the task. Unused here
 void taskReceiveCommand(void* params);
 
-/// Move the servos to the specified positions
+/// Move the vertical and horizontal servos to the specified positions
 ///
 /// @param[in] params Holds position information for the move
-void taskMoveServo(void* params);
+void taskMoveBaseServos(void* params);
 
 #endif

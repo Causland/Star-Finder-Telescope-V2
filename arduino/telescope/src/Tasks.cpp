@@ -31,11 +31,11 @@ BaseType_t createTasks(void* taskParams[NUM_TASKS],
     DEBUG_PRINTLN("Failed to create Receive Command task!");
   }
 
-  result = xTaskCreate(taskMoveServo,
-                       TaskMoveServoInfo::NAME,
-                       TaskMoveServoInfo::STACK_DEPTH,
+  result = xTaskCreate(taskMoveBaseServos,
+                       TaskMoveBaseServosInfo::NAME,
+                       TaskMoveBaseServosInfo::STACK_DEPTH,
                        taskParams[TASK_MOVE_SERVO],
-                       TaskMoveServoInfo::PRIORITY,
+                       TaskMoveBaseServosInfo::PRIORITY,
                        &taskHandles[TASK_MOVE_SERVO]);
   if (result != pdPASS)
   {

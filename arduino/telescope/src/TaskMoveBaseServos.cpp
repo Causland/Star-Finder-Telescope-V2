@@ -1,0 +1,108 @@
+#include <Arduino_FreeRTOS.h>
+#include <lib/FreeRTOS-Kernel-v10.5.1\message_buffer.h>
+#include <Arduino.h>
+
+#include "Commands.h"
+#include "Tasks.h"
+#include "Utils.h"
+#include "CustomServo.h"
+#include "PIDController.h"
+
+// Define servo constants
+static constexpr uint8_t VERT_SERVO_PIN{9};
+static constexpr uint16_t VERT_SERVO_MIN_US{860};
+static constexpr uint16_t VERT_SERVO_MAX_US{1490};
+static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
+
+static constexpr uint8_t HORIZ_SERVO_PIN{10};
+static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{11};
+static constexpr uint16_t HORIZ_SERVO_STOP_US{1500};
+static constexpr uint16_t HORIZ_SERVO_MIN_SPEED_OFFSET_US{30};
+static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_OFFSET_US{220};
+static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_DPS{840};
+static constexpr uint16_t HORIZ_SERVO_DEFAULT_US{HORIZ_SERVO_STOP_US};
+static constexpr uint16_t HORIZ_SERVO_REFRESH_RATE_MS{10};
+
+void taskMoveBaseServos(void* params)
+{
+  MessageBufferHandle_t msgBufferHandle = static_cast<MessageBufferHandle_t>(params);
+
+  // Allocate a buffer to hold the incoming command
+  // The buffer size should be large enough to hold the largest command packet
+  char cmdBuffer[MAX_CMD_SIZE]{0};
+
+  // Initialize the servo pins and any other necessary configurations like PID control
+  PositionalServo vertServo{VERT_SERVO_PIN, (VERT_SERVO_MIN_US + VERT_SERVO_MAX_US) / 2, 
+                            VERT_SERVO_MIN_US, VERT_SERVO_MAX_US, VERT_SERVO_MOTION_RANGE_DEG};
+  Parallax360Servo horizServo{HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
+                              HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
+                              HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN};
+  PIDController horizPID{&horizServo, 5, 1.275, 3.0, 0.425};
+
+  vertServo.init();
+  horizServo.init();
+
+  horizPID.updateTarget(20);
+
+  DEBUG_ENTER("taskBaseMoveServos()");
+
+  FOREVER
+  {
+    DEBUG_HEARTBEAT("MoveServo");
+
+    // Check if there is a new command in the message buffer. This will update
+    // the target angle for both servos. Do not wait for a command
+    size_t bytesRead = xMessageBufferReceive(msgBufferHandle, cmdBuffer, sizeof(cmdBuffer), 0);
+    if (bytesRead == sizeof(MoveServoCmd_t))
+    {
+      // Process the command
+      MoveServoCmd_t moveServoCmd;
+      MoveServoCmd::deserialize(&moveServoCmd, cmdBuffer, bytesRead);
+
+      DEBUG_PRINTLN("Received Move Servo Command: " + String(moveServoCmd.vertAngle) + ", " + 
+                    String(moveServoCmd.horizAngle));
+
+      // Move the vertical servo to the specified angle
+      int numUs{moveServoCmd.vertAngle * vertServo.usPerDeg + vertServo.minUs};
+      if (numUs < vertServo.minUs) numUs = vertServo.minUs;
+      else if (numUs > vertServo.maxUs) numUs = vertServo.maxUs;
+      vertServo.writeMicroseconds(numUs);
+
+      // Move the horizontal servo to the specified angle
+      double targetAngle{moveServoCmd.vertAngle};
+
+      // Calculate the next target based on the current real angle adjusted for turns
+      horizServo.measurePosition();
+      const auto measuredAngle{horizServo.getMeasuredAngle()};
+      const auto& turns{horizServo.turns};
+      if (targetAngle > measuredAngle && 
+          targetAngle - measuredAngle > 180.0)
+      {
+        horizPID.updateTarget(targetAngle + 360.0 * (turns - 1));
+      }
+      else if (measuredAngle > targetAngle &&
+                measuredAngle - targetAngle > 180)
+      {
+        horizPID.updateTarget(targetAngle + 360.0 * (turns + 1));
+      }
+      else
+      {
+        horizPID.updateTarget(targetAngle + 360.0 * turns);
+      }
+    }
+    else
+    {
+      DEBUG_PRINTLN("ERROR - Received move servo command sized " + String(bytesRead) + 
+                    " bytes, expected " + String(sizeof(MoveServoCmd_t)) + " bytes!");
+    }
+
+    // Move the horizontal servo using the PID controller. This is called every
+    // cycle of the task
+    horizPID.move();
+
+    // Delay for the refresh rate of the horizontal servo
+    vTaskDelay(pdMS_TO_TICKS(HORIZ_SERVO_REFRESH_RATE_MS));
+  }
+
+  DEBUG_EXIT("taskBaseMoveServos()");
+}

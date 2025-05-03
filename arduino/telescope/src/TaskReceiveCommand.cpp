@@ -6,7 +6,7 @@
 #include "Utils.h"
 #include "Wifi.h"
 
-static constexpr uint16_t RECEIVE_PERIOD_MS{1000};
+static constexpr uint16_t RECEIVE_PERIOD_MS{50};
 
 void taskReceiveCommand(void* params)
 {

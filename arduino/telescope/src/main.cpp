@@ -4,7 +4,7 @@
 #include "Commands.h"
 #include "Tasks.h"
 #include "Utils.h"
-//#include "Wifi.h"
+#include "Wifi.h"
 
 /// Global task objects used by tasks
 void* gTaskParams[NUM_TASKS]{0};
