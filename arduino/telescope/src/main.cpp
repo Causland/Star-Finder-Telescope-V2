@@ -16,7 +16,10 @@ MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
 Wifi gWifi;
 
 /// Parameter objects used by tasks
-struct RecvCmdParams gRecvCmdParams{&gWifi.cmdReceiver, gTaskHandles, gMsgBufferHandles};
+CollectTelemetryParams gCollectTelemetryParams{};
+RecvCmdParams gRecvCmdParams{};
+MoveBaseServoParams gMoveBaseServoParams{};
+PlanTrajectoryParams gPlanTrajectoryParams{};
 
 void setup()
 {
@@ -39,9 +42,21 @@ void setup()
   }
 
   // Provide parameters to tasks which need them
-  gTaskParams[TASK_COLLECT_TELEMETRY] = &gWifi.telemSender;
+  gCollectTelemetryParams.telemSender = &gWifi.telemSender;
+  gCollectTelemetryParams.msgBufferHandle = gMsgBufferHandles[TASK_COLLECT_TELEMETRY];
+  gTaskParams[TASK_COLLECT_TELEMETRY] = &gCollectTelemetryParams;
+
+  gRecvCmdParams.cmdReceiver = &gWifi.cmdReceiver;
+  gRecvCmdParams.taskHandles = gTaskHandles;
+  gRecvCmdParams.msgBufferHandles = gMsgBufferHandles;
   gTaskParams[TASK_RECEIVE_COMMAND] = &gRecvCmdParams;
-  gTaskParams[TASK_MOVE_SERVO] = gMsgBufferHandles[TASK_MOVE_SERVO];
+
+  gMoveBaseServoParams.msgBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
+  gTaskParams[TASK_MOVE_BASE_SERVOS] = &gMoveBaseServoParams;
+
+  gPlanTrajectoryParams.msgBufferHandle = gMsgBufferHandles[TASK_PLAN_TRAJECTORY];
+  gPlanTrajectoryParams.moveCmdBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
+  gTaskParams[TASK_PLAN_TRAJECTORY] = &gPlanTrajectoryParams;
 
   BaseType_t result = createTasks(gTaskParams, gTaskHandles);
   if (result != pdPASS)

@@ -23,28 +23,25 @@ static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_DPS{840};
 static constexpr uint16_t HORIZ_SERVO_DEFAULT_US{HORIZ_SERVO_STOP_US};
 static constexpr uint16_t HORIZ_SERVO_REFRESH_RATE_MS{10};
 
+// File local variables
+MoveServoCmd_t moveServoCmd{0.0, 0.0};
+PositionalServo vertServo{VERT_SERVO_PIN, (VERT_SERVO_MIN_US + VERT_SERVO_MAX_US) / 2, 
+                          VERT_SERVO_MIN_US, VERT_SERVO_MAX_US, VERT_SERVO_MOTION_RANGE_DEG};
+Parallax360Servo horizServo{HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
+                            HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
+                            HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN};
+PIDController horizPID{&horizServo, 5, 1.275, 3.0, 0.425};
+
 void taskMoveBaseServos(void* params)
 {
-  MessageBufferHandle_t msgBufferHandle = static_cast<MessageBufferHandle_t>(params);
+  DEBUG_ENTER("taskBaseMoveServos()");
 
-  // Allocate a buffer to hold the incoming command
-  // The buffer size should be large enough to hold the largest command packet
-  char cmdBuffer[MAX_CMD_SIZE]{0};
-
-  // Initialize the servo pins and any other necessary configurations like PID control
-  PositionalServo vertServo{VERT_SERVO_PIN, (VERT_SERVO_MIN_US + VERT_SERVO_MAX_US) / 2, 
-                            VERT_SERVO_MIN_US, VERT_SERVO_MAX_US, VERT_SERVO_MOTION_RANGE_DEG};
-  Parallax360Servo horizServo{HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
-                              HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
-                              HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN};
-  PIDController horizPID{&horizServo, 5, 1.275, 3.0, 0.425};
+  MessageBufferHandle_t msgBufferHandle = static_cast<MoveBaseServoParams*>(params)->msgBufferHandle;
 
   vertServo.init();
   horizServo.init();
 
   horizPID.updateTarget(20);
-
-  DEBUG_ENTER("taskBaseMoveServos()");
 
   FOREVER
   {
@@ -52,24 +49,21 @@ void taskMoveBaseServos(void* params)
 
     // Check if there is a new command in the message buffer. This will update
     // the target angle for both servos. Do not wait for a command
-    size_t bytesRead = xMessageBufferReceive(msgBufferHandle, cmdBuffer, sizeof(cmdBuffer), 0);
+    size_t bytesRead = xMessageBufferReceive(msgBufferHandle, reinterpret_cast<uint8_t*>(&moveServoCmd), 
+                                             sizeof(MoveServoCmd_t), 0);
     if (bytesRead == sizeof(MoveServoCmd_t))
     {
-      // Process the command
-      MoveServoCmd_t moveServoCmd;
-      MoveServoCmd::deserialize(&moveServoCmd, cmdBuffer, bytesRead);
-
-      DEBUG_PRINTLN("Received Move Servo Command: " + String(moveServoCmd.vertAngle) + ", " + 
-                    String(moveServoCmd.horizAngle));
+      DEBUG_PRINTLN("Received Move Servo Command: " + String(moveServoCmd.az) + ", " + 
+                    String(moveServoCmd.el));
 
       // Move the vertical servo to the specified angle
-      int numUs{moveServoCmd.vertAngle * vertServo.usPerDeg + vertServo.minUs};
+      int numUs{moveServoCmd.el * vertServo.usPerDeg + vertServo.minUs};
       if (numUs < vertServo.minUs) numUs = vertServo.minUs;
       else if (numUs > vertServo.maxUs) numUs = vertServo.maxUs;
       vertServo.writeMicroseconds(numUs);
 
       // Move the horizontal servo to the specified angle
-      double targetAngle{moveServoCmd.vertAngle};
+      double targetAngle{moveServoCmd.az};
 
       // Calculate the next target based on the current real angle adjusted for turns
       horizServo.measurePosition();
@@ -89,11 +83,6 @@ void taskMoveBaseServos(void* params)
       {
         horizPID.updateTarget(targetAngle + 360.0 * turns);
       }
-    }
-    else
-    {
-      DEBUG_PRINTLN("ERROR - Received move servo command sized " + String(bytesRead) + 
-                    " bytes, expected " + String(sizeof(MoveServoCmd_t)) + " bytes!");
     }
 
     // Move the horizontal servo using the PID controller. This is called every

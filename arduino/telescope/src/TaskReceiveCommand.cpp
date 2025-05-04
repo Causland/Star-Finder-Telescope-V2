@@ -37,10 +37,6 @@ void taskReceiveCommand(void* params)
       MessageBufferHandle_t cmdBufferHandle{nullptr};
       switch(cmdType)
       {
-        case CMD_MOVE_SERVO:
-          DEBUG_PRINTLN("Move Servo command received!");
-          cmdBufferHandle = msgBufferHandles[TASK_MOVE_SERVO];
-          break;
         case CMD_TELEM_RATE:
           DEBUG_PRINTLN("Telemetry rate command received!");
           cmdBufferHandle = msgBufferHandles[TASK_COLLECT_TELEMETRY];
@@ -56,8 +52,8 @@ void taskReceiveCommand(void* params)
         int bytesRead = cmdReceiver->read(cmdBuffer, sizeof(cmdBuffer));
         if (bytesRead > 0)
         {
-          // Send the command to the task's message buffer
-          if (xMessageBufferSend(cmdBufferHandle, cmdBuffer, bytesRead, 0) != bytesRead)
+          // Send the command to the task's message buffer. Strip the command type
+          if (xMessageBufferSend(cmdBufferHandle, cmdBuffer + 1, bytesRead - 1, 0) != bytesRead - 1)
           {
             DEBUG_PRINTLN("Failed to send command to task message buffer!");
           }

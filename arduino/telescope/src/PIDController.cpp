@@ -64,8 +64,8 @@ void PIDController::move()
   dtostrf(propPortion, 0, 3, str);           strncat(buf, str, 15); strcat(buf, ", ");
   dtostrf(integPortion, 0, 3, str);          strncat(buf, str, 15); strcat(buf, ", ");
   dtostrf(derivPortion, 0, 3, str);          strncat(buf, str, 15); strcat(buf, ", ");
-  itoa(offset, str, 10);                     strncat(buf, str, 15); strcat(buf, "\n");
-  DEBUG_PRINT("" + String(buf));
+  itoa(offset, str, 10);                     strncat(buf, str, 15);
+  DEBUG_PRINTLN("" + String(buf));
 #endif
 
   servo->writeMicroseconds(servo->defaultUs + offset);

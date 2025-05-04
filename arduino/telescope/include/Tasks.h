@@ -11,7 +11,7 @@ enum TaskID
 {
   TASK_COLLECT_TELEMETRY,
   TASK_RECEIVE_COMMAND,
-  TASK_MOVE_SERVO,
+  TASK_MOVE_BASE_SERVOS,
   TASK_PLAN_TRAJECTORY,
   NUM_TASKS,
 };
@@ -20,7 +20,7 @@ enum TaskID
 struct TaskCollectTelemetryInfo
 {
   static constexpr const char* const NAME{"CollectTelem"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{100};
+  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{128};
   static constexpr UBaseType_t PRIORITY{2};
 };
 
@@ -28,7 +28,7 @@ struct TaskCollectTelemetryInfo
 struct TaskReceiveCommandInfo
 {
   static constexpr const char* const NAME{"ReceiveCommand"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{250};
+  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{256};
   static constexpr UBaseType_t PRIORITY{2};
 };
 
@@ -36,8 +36,24 @@ struct TaskReceiveCommandInfo
 struct TaskMoveBaseServosInfo
 {
   static constexpr const char* const NAME{"MoveBaseServos"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{100};
+  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{384};
   static constexpr UBaseType_t PRIORITY{2};
+};
+
+/// Plan Trajectory Task Info
+struct TaskPlanTrajectoryInfo
+{
+  static constexpr const char* const NAME{"PlanTrajectory"};
+  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{384};
+  static constexpr UBaseType_t PRIORITY{2};
+};
+
+/// Collect Telemetry Task Parameters
+struct CollectTelemetryParams
+{
+  WiFiUDP* telemSender; ///< Pointer to the telemetry sender object
+  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
+                                         ///< receive telem rate commands
 };
 
 /// Receive Command Task Parameters
@@ -46,6 +62,22 @@ struct RecvCmdParams
   WiFiUDP* cmdReceiver; ///< Pointer to the command receiver object
   TaskHandle_t* taskHandles; ///< Pointer to the array of task handles
   MessageBufferHandle_t* msgBufferHandles; ///< Pointer to the array of message buffer handles
+};
+
+/// Move Base Servos Task Parameters
+struct MoveBaseServoParams
+{
+  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
+                                         ///< receive move commands
+};
+
+/// Plan Trajectory Task Parameters
+struct PlanTrajectoryParams
+{
+  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
+                                         ///< receive trajectory planning commands
+  MessageBufferHandle_t moveCmdBufferHandle; ///< Handle to the message buffer for this task to
+                                             ///< send move commands to the servos
 };
 
 /// Create all tasks needed for the lifetime of the telescope
@@ -61,17 +93,22 @@ BaseType_t createTasks(void* taskParams[NUM_TASKS],
 
 /// Periodically collect and report telemetry via the configured data interface
 ///
-/// @param[in] params Holds parameters for the task. Unused here
+/// @param[in] params Holds a pointer to a CollectTelemetryParams object
 void taskCollectTelemetry(void* params);
 
 /// Receive commands from the configured command interface and execute them
 ///
-/// @param[in] params Holds parameters for the task. Unused here
+/// @param[in] params Holds a pointer to a RecvCmdParams object
 void taskReceiveCommand(void* params);
 
 /// Move the vertical and horizontal servos to the specified positions
 ///
-/// @param[in] params Holds position information for the move
+/// @param[in] params Holds a pointer to a MoveBaseParams object
 void taskMoveBaseServos(void* params);
+
+/// Plan a trajectory for the telescope to follow
+///
+/// @param[in] params Holds a pointer to a PlanTrajectoryParams object
+void taskPlanTrajectory(void* params);
 
 #endif

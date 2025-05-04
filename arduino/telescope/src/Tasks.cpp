@@ -34,12 +34,23 @@ BaseType_t createTasks(void* taskParams[NUM_TASKS],
   result = xTaskCreate(taskMoveBaseServos,
                        TaskMoveBaseServosInfo::NAME,
                        TaskMoveBaseServosInfo::STACK_DEPTH,
-                       taskParams[TASK_MOVE_SERVO],
+                       taskParams[TASK_MOVE_BASE_SERVOS],
                        TaskMoveBaseServosInfo::PRIORITY,
-                       &taskHandles[TASK_MOVE_SERVO]);
+                       &taskHandles[TASK_MOVE_BASE_SERVOS]);
   if (result != pdPASS)
   {
     DEBUG_PRINTLN("Failed to create Move Servo task!");
+  }
+
+  result = xTaskCreate(taskPlanTrajectory,
+                       TaskPlanTrajectoryInfo::NAME,
+                       TaskPlanTrajectoryInfo::STACK_DEPTH,
+                       taskParams[TASK_PLAN_TRAJECTORY],
+                       TaskPlanTrajectoryInfo::PRIORITY,
+                       &taskHandles[TASK_PLAN_TRAJECTORY]);
+  if (result != pdPASS)
+  {
+    DEBUG_PRINTLN("Failed to create Plan Trajectory task!");
   }
 
   DEBUG_EXIT("createTasks()");
