@@ -30,7 +30,7 @@ bool Wifi::init()
   }
 
   // Start the UDP sender for telemetry
-  if (!telemSender.begin(WIFI_TELEM_ADDR, WIFI_TELEM_PORT))
+  if (!telemSender.begin(WIFI_TELEM_PORT))
   {
     DEBUG_PRINTLN("Failed to start telemetry sender!");
     return false;

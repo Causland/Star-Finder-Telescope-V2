@@ -14,6 +14,11 @@ void taskReceiveCommand(void* params)
   WiFiUDP* cmdReceiver = static_cast<WiFiUDP*>(cmdParams->cmdReceiver);
   TaskHandle_t* taskHandles = static_cast<TaskHandle_t*>(cmdParams->taskHandles);
   MessageBufferHandle_t* msgBufferHandles = static_cast<MessageBufferHandle_t*>(cmdParams->msgBufferHandles);
+  Telemetry* telemetry = static_cast<Telemetry*>(cmdParams->telemetry);
+
+  // Register task telemetry
+  uint16_t cmdsReceived{0};
+  telemetry->registerTelemFieldCmdsReceived(&cmdsReceived);
 
   // Allocate a buffer to hold the incoming command
   // The buffer size should be large enough to hold the largest command packet
@@ -52,6 +57,8 @@ void taskReceiveCommand(void* params)
         int bytesRead = cmdReceiver->read(cmdBuffer, sizeof(cmdBuffer));
         if (bytesRead > 0)
         {
+          ++cmdsReceived;
+          
           // Send the command to the task's message buffer. Strip the command type
           if (xMessageBufferSend(cmdBufferHandle, cmdBuffer + 1, bytesRead - 1, 0) != bytesRead - 1)
           {

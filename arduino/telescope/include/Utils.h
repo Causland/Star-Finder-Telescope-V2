@@ -33,6 +33,12 @@
     #define DEBUG_TRAJECTORY(str) (void)0
   #endif
 
+  #ifdef DEBUG_TELEMETRY
+    #define DEBUG_TELEMETRY(str) DEBUG_PRINTLN(str);
+  #else
+    #define DEBUG_TELEMETRY(str) (void)0
+  #endif
+
   #ifdef DEBUG_FOREVER_HB
     #define DEBUG_HEARTBEAT(str) DEBUG_PRINTLN("Heartbeat: " str);
   #else
@@ -50,6 +56,8 @@
   #define DEBUG_EXIT(str) (void)0
 
   #define DEBUG_TRAJECTORY(str) (void)0
+
+  #define DEBUG_TELEMETRY(str) (void)0
   
   #define DEBUG_HEARTBEAT(str) (void)0
 

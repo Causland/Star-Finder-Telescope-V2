@@ -4,6 +4,7 @@
 #include <Arduino_FreeRTOS.h>
 #include <lib\FreeRTOS-Kernel-v10.5.1\message_buffer.h>
 
+#include "Telemetry.h"
 #include "Wifi.h"
 
 /// UID for each task
@@ -28,7 +29,7 @@ struct TaskCollectTelemetryInfo
 struct TaskReceiveCommandInfo
 {
   static constexpr const char* const NAME{"ReceiveCommand"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{256};
+  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{384};
   static constexpr UBaseType_t PRIORITY{2};
 };
 
@@ -54,6 +55,7 @@ struct CollectTelemetryParams
   WiFiUDP* telemSender; ///< Pointer to the telemetry sender object
   MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
                                          ///< receive telem rate commands
+  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
 };
 
 /// Receive Command Task Parameters
@@ -62,6 +64,7 @@ struct RecvCmdParams
   WiFiUDP* cmdReceiver; ///< Pointer to the command receiver object
   TaskHandle_t* taskHandles; ///< Pointer to the array of task handles
   MessageBufferHandle_t* msgBufferHandles; ///< Pointer to the array of message buffer handles
+  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
 };
 
 /// Move Base Servos Task Parameters
@@ -69,6 +72,7 @@ struct MoveBaseServoParams
 {
   MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
                                          ///< receive move commands
+  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
 };
 
 /// Plan Trajectory Task Parameters
@@ -78,6 +82,7 @@ struct PlanTrajectoryParams
                                          ///< receive trajectory planning commands
   MessageBufferHandle_t moveCmdBufferHandle; ///< Handle to the message buffer for this task to
                                              ///< send move commands to the servos
+  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
 };
 
 /// Create all tasks needed for the lifetime of the telescope

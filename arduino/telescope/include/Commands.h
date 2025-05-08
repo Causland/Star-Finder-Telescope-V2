@@ -15,6 +15,12 @@ enum CommandID
   CMD_PLAN_TRAJECTORY,
 };
 
+struct TelemetryRateCmd_t
+{
+  uint16_t rate; ///< Telemetry rate in milliseconds
+};
+static constexpr uint8_t MIN_TELEM_RATE_MS{100}; ///< Min telemetry rate in milliseconds
+
 struct MoveServoCmd_t
 {
   float az; ///< Target horizontal angle in degrees
@@ -52,7 +58,13 @@ static bool serialize(const T& obj, char* buffer, const size_t& bufferSize)
   {
     return false;
   }
-  memcpy(buffer, &obj, sizeof(T));
+
+  // Convert to network byte order
+  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&obj);
+  for (size_t i = 0; i < sizeof(T); ++i)
+  {
+    buffer[i] = ptr[sizeof(T) - 1 - i];
+  }
   return true;
 }
 
@@ -63,7 +75,13 @@ static bool deserialize(T* obj, const char* buffer, const size_t& bufferSize)
   {
     return false;
   }
-  memcpy(obj, buffer, sizeof(T));
+
+  // Convert from network byte order
+  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(buffer);
+  for (size_t i = 0; i < sizeof(T); ++i)
+  {
+    ((uint8_t*)obj)[sizeof(T) - 1 - i] = ptr[i];
+  }
   return true;
 }
 

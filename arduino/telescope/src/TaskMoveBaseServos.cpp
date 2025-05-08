@@ -31,12 +31,22 @@ Parallax360Servo horizServo{HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US,
                             HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
                             HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN};
 PIDController horizPID{&horizServo, 5, 1.275, 3.0, 0.425};
+float targetAz{0.0};
+float targetEl{0.0};
 
 void taskMoveBaseServos(void* params)
 {
   DEBUG_ENTER("taskBaseMoveServos()");
 
   MessageBufferHandle_t msgBufferHandle = static_cast<MoveBaseServoParams*>(params)->msgBufferHandle;
+  Telemetry* telemetry = static_cast<MoveBaseServoParams*>(params)->telemetry;
+
+  // Register task telemetry
+  telemetry->registerTelemFieldCurrAz(&horizPID.prevFilteredCurrAngle);
+  telemetry->registerTelemFieldCurrEl(&vertServo.currAngle);
+  telemetry->registerTelemFieldSpeedAz(&horizPID.prevFilteredVel);
+  telemetry->registerTelemFieldTargetAz(&targetAz);
+  telemetry->registerTelemFieldTargetEl(&targetEl);
 
   vertServo.init();
   horizServo.init();
@@ -55,6 +65,8 @@ void taskMoveBaseServos(void* params)
     {
       DEBUG_PRINTLN("Received Move Servo Command: " + String(moveServoCmd.az) + ", " + 
                     String(moveServoCmd.el));
+      targetAz = moveServoCmd.az;
+      targetEl = moveServoCmd.el;
 
       // Move the vertical servo to the specified angle
       int numUs{moveServoCmd.el * vertServo.usPerDeg + vertServo.minUs};

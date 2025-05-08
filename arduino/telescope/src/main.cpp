@@ -3,6 +3,7 @@
 
 #include "Commands.h"
 #include "Tasks.h"
+#include "Telemetry.h"
 #include "Utils.h"
 #include "Wifi.h"
 
@@ -10,7 +11,7 @@
 void* gTaskParams[NUM_TASKS]{0};
 TaskHandle_t gTaskHandles[NUM_TASKS]{0};
 MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
-
+Telemetry gTelemetry{};
 
 /// Global Wifi objects used by tasks
 Wifi gWifi;
@@ -20,6 +21,12 @@ CollectTelemetryParams gCollectTelemetryParams{};
 RecvCmdParams gRecvCmdParams{};
 MoveBaseServoParams gMoveBaseServoParams{};
 PlanTrajectoryParams gPlanTrajectoryParams{};
+
+// Create GPS objects
+/// @todo: Move to permanent location in the code
+float gpsLat{0.0};
+float gpsLon{0.0};
+float gpsAlt{0.0};
 
 void setup()
 {
@@ -41,21 +48,30 @@ void setup()
     while (true) { ; } // There was a failure allocating command buffers. Block and loop forever
   }
 
+  /// @todo: Add GPS object creation here
+  gTelemetry.registerTelemFieldGPSLat(&gpsLat);
+  gTelemetry.registerTelemFieldGPSLon(&gpsLon);
+  gTelemetry.registerTelemFieldGPSAlt(&gpsAlt);
+
   // Provide parameters to tasks which need them
   gCollectTelemetryParams.telemSender = &gWifi.telemSender;
   gCollectTelemetryParams.msgBufferHandle = gMsgBufferHandles[TASK_COLLECT_TELEMETRY];
+  gCollectTelemetryParams.telemetry = &gTelemetry;
   gTaskParams[TASK_COLLECT_TELEMETRY] = &gCollectTelemetryParams;
 
   gRecvCmdParams.cmdReceiver = &gWifi.cmdReceiver;
   gRecvCmdParams.taskHandles = gTaskHandles;
   gRecvCmdParams.msgBufferHandles = gMsgBufferHandles;
+  gRecvCmdParams.telemetry = &gTelemetry;
   gTaskParams[TASK_RECEIVE_COMMAND] = &gRecvCmdParams;
 
   gMoveBaseServoParams.msgBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
+  gMoveBaseServoParams.telemetry = &gTelemetry;
   gTaskParams[TASK_MOVE_BASE_SERVOS] = &gMoveBaseServoParams;
 
   gPlanTrajectoryParams.msgBufferHandle = gMsgBufferHandles[TASK_PLAN_TRAJECTORY];
   gPlanTrajectoryParams.moveCmdBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
+  gPlanTrajectoryParams.telemetry = &gTelemetry;
   gTaskParams[TASK_PLAN_TRAJECTORY] = &gPlanTrajectoryParams;
 
   BaseType_t result = createTasks(gTaskParams, gTaskHandles);

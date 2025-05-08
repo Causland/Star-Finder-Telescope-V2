@@ -41,14 +41,15 @@ public:
     prevIntegral = 0.0; 
   }
 
+  double prevFilteredCurrAngle{0.0}; /// The previous filtered angle of the servo.
+  double prevFilteredVel{0.0}; /// The previous filtered velocity of the servo.
+
 private:
   double K_P{0.0}; /// The proportional constant.
   double K_I{0.0}; /// The integration constant.
   double K_D{0.0}; /// The derivative constant.
 
   unsigned long prevUpdateMs{millis()}; /// The last time the move() function was called.
-  double prevFilteredCurrAngle{0.0}; /// The previous filtered angle of the servo.
-  double prevFilteredVel{0.0}; /// The previous filtered velocity of the servo.
   double prevIntegral{0.0}; /// The previous integral value.
 
   unsigned long targetTimeMs{millis()}; /// Time of the last target update.

@@ -53,6 +53,9 @@ public:
   uint16_t minUs{0}; /// The minimum microseconds for the servo.
   uint16_t maxUs{UINT16_MAX}; /// The maximum microseconds for the servo.
 
+  double currAngle{0.0}; /// Current angle of the servo. Most recent measurement.
+  double prevAngle{0.0}; /// Previous angle of the servo.
+
 protected:
   /// Measure the duty cycle of a pin using a +-100 window around the period.
   /// @param[in] pin the pin to read the duty cycle.
@@ -62,9 +65,6 @@ protected:
   /// @return the duty cycle. -1.0 if invalid.
   static double measureDutyCycle(const int& pin, const int& periodUs, 
                                  const int& average, const int& timeoutMs);
-
-  double currAngle{0.0}; /// Current angle of the servo. Most recent measurement.
-  double prevAngle{0.0}; /// Previous angle of the servo.
   
   Servo servo; /// The underlying Servo object to control the servo.
 };
@@ -110,6 +110,9 @@ public:
   uint16_t maxSpeedDps{UINT16_MAX}; /// Maximum speed of the servo.
   int turns{0}; /// The number of turns the servo has made since startup.
 
+  double currMeasuredAngle{0.0}; /// The real 0-360 measured angle of the servo.
+                                 /// CustomServo::currAngle holds the angle adjusted for turns.
+
 protected:
   /// Adjust the number of turns based on the previous and current measured angle.
   /// Uses quadrants to figure out 0-360 crossover
@@ -117,8 +120,6 @@ protected:
 
   uint8_t feedbackPinNum{0}; /// The physical pin number of the feedback sensor.
 
-  double currMeasuredAngle{0.0}; /// The real 0-360 measured angle of the servo.
-                                 /// CustomServo::currAngle holds the angle adjusted for turns.
   double prevMeasuredAngle{0.0}; /// The real 0-360 previous measured angle of the servo.
                                  /// CustomServo::prevAngle holds the angle adjusted for turns.
 };

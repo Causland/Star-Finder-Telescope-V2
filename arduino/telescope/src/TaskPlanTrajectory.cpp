@@ -9,6 +9,9 @@
 uint8_t lastSeqNumReceived{0};
 TrajectoryPart_t trajectoryPart{0, 0, 0, 0, {{0.0, 0.0, 0.0}}};
 
+bool trajRunning{false};
+unsigned long nowRel{0};
+uint8_t currEntry{0};
 uint8_t numEntries{0};
 uint8_t numParts{0};
 TrajectoryEntry_t trajectory[MAX_ENTRIES_PER_TRAJECTORY_PART * MAX_TRAJECTORY_PARTS]{0};
@@ -51,22 +54,24 @@ bool verifyChecksum(const TrajectoryPart_t& part)
 void processTrajectory(const TrajectoryEntry_t* trajectory, const uint8_t numEntries, 
                        const unsigned long& startTime, MessageBufferHandle_t moveCmdBufferHandle)
 {
+  trajRunning = true;
+
   // Process the trajectory entries
-  for (uint8_t i = 0; i < numEntries; ++i)
+  for (currEntry = 0; currEntry < numEntries; ++currEntry)
   {
-    const unsigned long nowRel = millis() - startTime;
-    if (nowRel < trajectory[i].t * 1000)
+    nowRel = millis() - startTime;
+    if (nowRel < trajectory[currEntry].t * 1000)
     {
       // Wait until the specified time for this entry
-      vTaskDelay(pdMS_TO_TICKS((trajectory[i].t * 1000) - nowRel));
+      vTaskDelay(pdMS_TO_TICKS((trajectory[currEntry].t * 1000) - nowRel));
     }
 
     DEBUG_TRAJECTORY("Processing trajectory entry: " + 
-                      String(trajectory[i].t) + ", " + 
-                      String(trajectory[i].az) + ", " + 
-                      String(trajectory[i].el));
+                      String(trajectory[currEntry].t) + ", " + 
+                      String(trajectory[currEntry].az) + ", " + 
+                      String(trajectory[currEntry].el));
     
-    MoveServoCmd_t moveCmd{trajectory[i].az, trajectory[i].el};
+    MoveServoCmd_t moveCmd{trajectory[currEntry].az, trajectory[currEntry].el};
     xMessageBufferSend(moveCmdBufferHandle, 
                        reinterpret_cast<const uint8_t*>(&moveCmd), 
                        sizeof(MoveServoCmd_t), 0);
@@ -78,6 +83,9 @@ void resetTrajectory()
 {
   lastSeqNumReceived = 0;
   numEntries = 0;
+  currEntry = 0;
+  numParts = 0;
+  trajRunning = false;
 }
 
 void taskPlanTrajectory(void* params)
@@ -87,6 +95,13 @@ void taskPlanTrajectory(void* params)
   PlanTrajectoryParams* planParams = static_cast<PlanTrajectoryParams*>(params);
   MessageBufferHandle_t msgBufferHandle = planParams->msgBufferHandle;
   MessageBufferHandle_t moveCmdBufferHandle = planParams->moveCmdBufferHandle;
+  Telemetry* telemetry = planParams->telemetry;
+
+  // Register task telemetry
+  telemetry->registerTelemFieldTrajRunning(&trajRunning);
+  telemetry->registerTelemFieldTrajNumEntries(&numEntries);
+  telemetry->registerTelemFieldTrajCurrEntry(&currEntry);
+  telemetry->registerTelemFieldTimeToNextEntry(&nowRel);
 
   FOREVER
   {
