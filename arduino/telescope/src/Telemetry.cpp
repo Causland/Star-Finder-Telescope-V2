@@ -28,8 +28,6 @@ int Telemetry::serializeTelemetry(char* buffer, const size_t& bufferSize)
 
   const unsigned long timeNow = millis();
   SERIALIZE_FIELD(&timeNow);
-  const size_t freeHeap = xPortGetFreeHeapSize();
-  SERIALIZE_FIELD(&freeHeap);
 
   SERIALIZE_FIELD(CmdsReceived);
 

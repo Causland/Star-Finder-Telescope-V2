@@ -11,6 +11,6 @@ while True:
   # Receive data from the socket
   data, addr = udp_socket.recvfrom(1024)
   
-  format = ">IIHfffBBBIdddff"
+  format = ">IHfffBBBIdddff"
   unpacked_data = struct.unpack(format, data)
   print(f"Received data: {unpacked_data}")

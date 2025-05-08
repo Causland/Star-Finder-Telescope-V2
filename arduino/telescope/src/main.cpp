@@ -10,9 +10,14 @@
 /// Global task objects used by tasks
 void* gTaskParams[NUM_TASKS]{0};
 TaskHandle_t gTaskHandles[NUM_TASKS]{0};
+
 StackType_t gTaskStack[NUM_TASKS][TASK_STACK_DEPTH]{0};
 StaticTask_t gTaskTCB[NUM_TASKS]{0};
+
+uint8_t gMsgBufferStorage[NUM_TASKS][MAX_CMD_SIZE]{0};
+StaticMessageBuffer_t gMsgBuffer[NUM_TASKS]{0};
 MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
+
 Telemetry gTelemetry{};
 
 /// Global Wifi objects used by tasks
@@ -43,7 +48,7 @@ void setup()
   }
 
   // Create task command buffers
-  bool allocStatus = createCmdBuffers(gMsgBufferHandles);
+  bool allocStatus = createCmdBuffers(gMsgBufferHandles, gMsgBuffer, gMsgBufferStorage);
   if (!allocStatus)
   {
     DEBUG_PRINTLN("Failed to allocate command buffers! Stopping...");

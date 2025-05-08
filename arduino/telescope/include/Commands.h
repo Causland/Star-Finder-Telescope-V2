@@ -88,8 +88,12 @@ static bool deserialize(T* obj, const char* buffer, const size_t& bufferSize)
 /// Create message buffers for each task to receive commands
 ///
 /// @param[out] msgBufferHandles An array of message buffer handles that will be created for each task
+/// @param[in] msgBuffer An array of buffer objects that will be created for each task
+/// @param[in] msgBufferStorage An array of storage buffers that will be used for each message buffer
 ///
 /// @return true if all message buffers were allocated successfully
-bool createCmdBuffers(MessageBufferHandle_t msgBufferHandles[NUM_TASKS]);
+bool createCmdBuffers(MessageBufferHandle_t msgBufferHandles[NUM_TASKS],
+                      StaticMessageBuffer_t msgBuffer[NUM_TASKS],
+                      uint8_t msgBufferStorage[NUM_TASKS][MAX_CMD_SIZE]);
 
 #endif
