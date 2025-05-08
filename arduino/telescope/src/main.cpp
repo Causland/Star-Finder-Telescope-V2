@@ -10,6 +10,8 @@
 /// Global task objects used by tasks
 void* gTaskParams[NUM_TASKS]{0};
 TaskHandle_t gTaskHandles[NUM_TASKS]{0};
+StackType_t gTaskStack[NUM_TASKS][TASK_STACK_DEPTH]{0};
+StaticTask_t gTaskTCB[NUM_TASKS]{0};
 MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
 Telemetry gTelemetry{};
 
@@ -74,7 +76,8 @@ void setup()
   gPlanTrajectoryParams.telemetry = &gTelemetry;
   gTaskParams[TASK_PLAN_TRAJECTORY] = &gPlanTrajectoryParams;
 
-  BaseType_t result = createTasks(gTaskParams, gTaskHandles);
+  BaseType_t result = createTasks(gTaskParams, gTaskHandles,
+                                  gTaskStack, gTaskTCB);
   if (result != pdPASS)
   {
     DEBUG_PRINTLN("Failed to create all tasks! Stopping...");
