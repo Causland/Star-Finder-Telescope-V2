@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include "Commands.h"
+#include "GPS.h"
 #include "Tasks.h"
 #include "Telemetry.h"
 #include "Utils.h"
@@ -20,6 +21,8 @@ MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
 
 Telemetry gTelemetry{};
 
+GPS gGPS{};
+
 /// Global Wifi objects used by tasks
 Wifi gWifi;
 
@@ -28,12 +31,6 @@ CollectTelemetryParams gCollectTelemetryParams{};
 RecvCmdParams gRecvCmdParams{};
 MoveBaseServoParams gMoveBaseServoParams{};
 PlanTrajectoryParams gPlanTrajectoryParams{};
-
-// Create GPS objects
-/// @todo: Move to permanent location in the code
-float gpsLat{0.0};
-float gpsLon{0.0};
-float gpsAlt{0.0};
 
 void setup()
 {
@@ -47,6 +44,23 @@ void setup()
     while (true) { ; } // There was a failure start one of the Wifi interfaces. Block and loop forever
   }
 
+  // Initialize GPS module
+  if (!gGPS.init())
+  {
+    DEBUG_PRINTLN("Failed to initialize GPS module! Stopping...");
+    while (true) { ; } // There was a failure starting the GPS module. Block and loop forever
+  }
+  if (!gGPS.getData())
+  {
+    DEBUG_PRINTLN("Failed to get GPS data! Using defaults");
+  }
+  gGPS.deinit();
+
+  // Register telemetry fields with the telemetry object
+  gTelemetry.registerTelemFieldGPSLat(&gGPS.gpsLat);
+  gTelemetry.registerTelemFieldGPSLon(&gGPS.gpsLon);
+  gTelemetry.registerTelemFieldGPSAlt(&gGPS.gpsAlt);
+
   // Create task command buffers
   bool allocStatus = createCmdBuffers(gMsgBufferHandles, gMsgBuffer, gMsgBufferStorage);
   if (!allocStatus)
@@ -54,11 +68,6 @@ void setup()
     DEBUG_PRINTLN("Failed to allocate command buffers! Stopping...");
     while (true) { ; } // There was a failure allocating command buffers. Block and loop forever
   }
-
-  /// @todo: Add GPS object creation here
-  gTelemetry.registerTelemFieldGPSLat(&gpsLat);
-  gTelemetry.registerTelemFieldGPSLon(&gpsLon);
-  gTelemetry.registerTelemFieldGPSAlt(&gpsAlt);
 
   // Provide parameters to tasks which need them
   gCollectTelemetryParams.telemSender = &gWifi.telemSender;
