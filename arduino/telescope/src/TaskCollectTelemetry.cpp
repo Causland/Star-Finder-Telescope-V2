@@ -8,7 +8,7 @@
 
 // Statically allocate a buffer to hold the telemetry data
 char telemBuffer[sizeof(Telemetry) * 2]{0};
-uint16_t telemRate{5000}; ///< Telemetry rate in milliseconds
+uint16_t telemRate{250}; ///< Telemetry rate in milliseconds
 
 void taskCollectTelemetry(void* params)
 {

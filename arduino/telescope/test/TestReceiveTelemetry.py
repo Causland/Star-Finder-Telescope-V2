@@ -13,4 +13,6 @@ while True:
   
   format = ">IHfffBBBIdddff"
   unpacked_data = struct.unpack(format, data)
-  print(f"Received data: {unpacked_data}")
+  vals = [f"{val:.3f}" if isinstance(val, float) else val for val in unpacked_data]
+
+  print(f"Received data: {vals}")

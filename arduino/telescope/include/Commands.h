@@ -35,7 +35,6 @@ struct TrajectoryHeader_t
   uint8_t seqNum; ///< Sequence number of part of the trajectory. Starts at 1
   uint8_t totalParts; ///< Total number of parts in the trajectory
   uint8_t numEntries; ///< Number of entries in this part of the trajectory
-  uint8_t checksum; ///< Checksum of the trajectory. XOR of header and entries
 };
 
 struct TrajectoryEntry_t
@@ -45,11 +44,13 @@ struct TrajectoryEntry_t
   float el; ///< Elevation angle in degrees
 };
 
+#pragma pack(push, 1) // Ensure no padding between struct members
 struct TrajectoryPart_t
 {
   TrajectoryHeader_t header;
   TrajectoryEntry_t entries[MAX_ENTRIES_PER_TRAJECTORY_PART]; ///< Array of trajectory entries
 };
+#pragma pack(pop) // Restore previous packing alignment
 
 template <typename T>
 static bool serialize(const T& obj, char* buffer, const size_t& bufferSize)

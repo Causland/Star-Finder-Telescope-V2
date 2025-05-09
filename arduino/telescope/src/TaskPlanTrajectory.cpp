@@ -7,41 +7,15 @@
 
 // File local variables
 uint8_t lastSeqNumReceived{0};
-TrajectoryPart_t trajectoryPart{0, 0, 0, 0, {{0.0, 0.0, 0.0}}};
+TrajectoryPart_t trajectoryPart{0, 0, 0, {{0.0, 0.0, 0.0}}};
 
 bool trajRunning{false};
-unsigned long nowRel{0};
+unsigned long timeToNextEntry{0};
 uint8_t currEntry{0};
 uint8_t numEntries{0};
 uint8_t numParts{0};
 TrajectoryEntry_t trajectory[MAX_ENTRIES_PER_TRAJECTORY_PART * MAX_TRAJECTORY_PARTS]{0};
 unsigned long startTime{0};
-
-/// Verify the checksum of a trajectory part. XOR all bytes together
-/// and check if the result is zero
-///
-/// @param[in] part The trajectory part to verify
-///
-/// @return true if the checksum is valid, false otherwise
-/// @note The checksum is valid if all bytes XORed together is zero due
-///       to the fact that the checksum XORed with itself (all other bytes) is zero
-bool verifyChecksum(const TrajectoryPart_t& part)
-{
-  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&part);
-  uint8_t checksum = part.header.seqNum ^
-                      part.header.totalParts ^
-                      part.header.numEntries ^
-                      part.header.checksum;
-  for (size_t i = 0; i < part.header.numEntries; ++i)
-  {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&part.entries[i]);
-    for (size_t j = 0; j < sizeof(TrajectoryEntry_t); ++j)
-    {
-      checksum ^= ptr[j];
-    }
-  }
-  return !checksum;
-};
 
 /// Process the trajectory by iterating through each entry and sending commands
 /// to the servos at the specified time
@@ -59,11 +33,12 @@ void processTrajectory(const TrajectoryEntry_t* trajectory, const uint8_t numEnt
   // Process the trajectory entries
   for (currEntry = 0; currEntry < numEntries; ++currEntry)
   {
-    nowRel = millis() - startTime;
+    unsigned long nowRel = millis() - startTime;
     if (nowRel < trajectory[currEntry].t * 1000)
     {
       // Wait until the specified time for this entry
-      vTaskDelay(pdMS_TO_TICKS((trajectory[currEntry].t * 1000) - nowRel));
+      timeToNextEntry = trajectory[currEntry].t * 1000 - nowRel;
+      vTaskDelay(pdMS_TO_TICKS(timeToNextEntry));
     }
 
     DEBUG_TRAJECTORY("Processing trajectory entry: " + 
@@ -85,6 +60,7 @@ void resetTrajectory()
   numEntries = 0;
   currEntry = 0;
   numParts = 0;
+  timeToNextEntry = 0;
   trajRunning = false;
 }
 
@@ -101,7 +77,7 @@ void taskPlanTrajectory(void* params)
   telemetry->registerTelemFieldTrajRunning(&trajRunning);
   telemetry->registerTelemFieldTrajNumEntries(&numEntries);
   telemetry->registerTelemFieldTrajCurrEntry(&currEntry);
-  telemetry->registerTelemFieldTimeToNextEntry(&nowRel);
+  telemetry->registerTelemFieldTimeToNextEntry(&timeToNextEntry);
 
   FOREVER
   {
@@ -115,16 +91,7 @@ void taskPlanTrajectory(void* params)
       DEBUG_TRAJECTORY("Received trajectory part: " + 
                         String(trajectoryPart.header.seqNum) + ", " + 
                         String(trajectoryPart.header.totalParts) + ", " + 
-                        String(trajectoryPart.header.numEntries) + ", " + 
-                        String(trajectoryPart.header.checksum));
-
-      // Validate the trajectory part
-      if (!verifyChecksum(trajectoryPart))
-      {
-        DEBUG_PRINTLN("ERROR - Invalid trajectory part checksum");
-        resetTrajectory();
-        continue;
-      }
+                        String(trajectoryPart.header.numEntries));
 
       // Verify expected length was received
       const uint16_t expectedSize = sizeof(TrajectoryHeader_t) +

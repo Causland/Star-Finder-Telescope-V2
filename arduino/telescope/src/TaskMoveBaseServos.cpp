@@ -97,6 +97,9 @@ void taskMoveBaseServos(void* params)
       }
     }
 
+    // Update the position of the vertical servo
+    vertServo.measurePosition();
+    
     // Move the horizontal servo using the PID controller. This is called every
     // cycle of the task
     horizPID.move();
