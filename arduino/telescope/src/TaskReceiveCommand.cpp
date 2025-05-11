@@ -50,6 +50,9 @@ void taskReceiveCommand(void* params)
           DEBUG_PRINTLN("Plan trajectory command received!");
           cmdBufferHandle = msgBufferHandles[TASK_PLAN_TRAJECTORY];
           break;
+        case CMD_CONTROL_CAMERA:
+          DEBUG_PRINTLN("Control camera command received!");
+          cmdBufferHandle = msgBufferHandles[TASK_CONTROL_CAMERA];
       }
       if (cmdBufferHandle != nullptr)
       {

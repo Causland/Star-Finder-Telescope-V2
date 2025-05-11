@@ -67,6 +67,20 @@ bool createTasks(void* taskParams[NUM_TASKS],
     return false;
   }
 
+  taskHandles[TASK_CONTROL_CAMERA] = xTaskCreateStatic(
+                                          taskControlCamera,
+                                          TaskControlCameraInfo::NAME,
+                                          TASK_STACK_DEPTH,
+                                          taskParams[TASK_CONTROL_CAMERA],
+                                          TaskControlCameraInfo::PRIORITY,
+                                          taskStack[TASK_CONTROL_CAMERA],
+                                          &taskTCB[TASK_CONTROL_CAMERA]);
+  if (taskHandles[TASK_CONTROL_CAMERA] == nullptr)
+  {
+    DEBUG_PRINTLN("Failed to create Control Camera task!");
+    return false;
+  }
+
   DEBUG_EXIT("createTasks()");
   return true;
 }

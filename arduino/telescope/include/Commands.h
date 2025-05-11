@@ -13,6 +13,7 @@ enum CommandID
 {
   CMD_TELEM_RATE,
   CMD_PLAN_TRAJECTORY,
+  CMD_CONTROL_CAMERA,
 };
 
 struct TelemetryRateCmd_t
@@ -25,6 +26,34 @@ struct MoveServoCmd_t
 {
   float az; ///< Target horizontal angle in degrees
   float el; ///< Target vertical angle in degrees
+};
+
+enum ControlCameraCmdID
+{
+  CTRL_CAM_CONFIG,
+  CTRL_CAM_PHOTO,
+  CTRL_CAM_VIDEO,
+};
+
+struct ControlCameraConfigs_t
+{
+  uint8_t configID; ///< Config item in ArduCAM.h
+  uint8_t value; ///< New value for config item found in ArduCAM.h
+};
+
+struct ControlCameraVideo_t
+{
+  uint32_t duration; ///< Duration of the video in seconds
+};
+
+struct ControlCameraCmd_t
+{
+  ControlCameraCmdID id; ///< Specifies the underlying action to perform
+  union
+  {
+    ControlCameraConfigs_t cfg;
+    ControlCameraVideo_t vid;
+  };
 };
 
 static constexpr uint8_t MAX_ENTRIES_PER_TRAJECTORY_PART{10}; ///< Max number of trajectory entries in a part

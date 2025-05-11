@@ -14,10 +14,11 @@ enum TaskID
   TASK_RECEIVE_COMMAND,
   TASK_MOVE_BASE_SERVOS,
   TASK_PLAN_TRAJECTORY,
+  TASK_CONTROL_CAMERA,
   NUM_TASKS,
 };
 
-static constexpr size_t TASK_STACK_DEPTH{384};
+static constexpr size_t TASK_STACK_DEPTH{256};
 
 /// Collect Telemetry Task Info
 struct TaskCollectTelemetryInfo
@@ -44,6 +45,13 @@ struct TaskMoveBaseServosInfo
 struct TaskPlanTrajectoryInfo
 {
   static constexpr const char* const NAME{"PlanTrajectory"};
+  static constexpr UBaseType_t PRIORITY{2};
+};
+
+/// Control Camera Task Info
+struct TaskControlCameraInfo
+{
+  static constexpr const char* const NAME{"ControlCamera"};
   static constexpr UBaseType_t PRIORITY{2};
 };
 
@@ -83,6 +91,15 @@ struct PlanTrajectoryParams
   Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
 };
 
+/// Control Camera Task Parameters
+struct ControlCameraParams
+{
+  WiFiUDP* cameraSender; ///< Pointer to the camera sender object
+  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
+                                         ///< receive camera commands
+  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
+};
+
 /// Create all tasks needed for the lifetime of the telescope
 ///
 /// @param[in] taskParams An array of pointers to the task parameters for each task.
@@ -118,6 +135,11 @@ void taskMoveBaseServos(void* params);
 ///
 /// @param[in] params Holds a pointer to a PlanTrajectoryParams object
 void taskPlanTrajectory(void* params);
+
+/// Control the camera and capture images
+///
+/// @param[in] params Holds a pointer to a ControlCameraParams object
+void taskControlCamera(void* params);
 
 /////////////////////////////////////////////////////
 // Define some needed FreeRTOS functions here for static memory allocation

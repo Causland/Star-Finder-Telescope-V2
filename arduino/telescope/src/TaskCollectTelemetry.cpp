@@ -50,7 +50,7 @@ void taskCollectTelemetry(void* params)
     if (bytesSerialized > 0)
     {
       // Send the telemetry data to the UDP sender
-      telemSender->beginPacket(WIFI_TELEM_ADDR, WIFI_TELEM_PORT);
+      telemSender->beginPacket(WIFI_USER_ADDR, WIFI_TELEM_PORT);
       telemSender->write(telemBuffer, bytesSerialized);
       telemSender->endPacket();
     }

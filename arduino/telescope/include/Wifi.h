@@ -4,13 +4,14 @@
 #include <WiFiS3.h>
 
 const IPAddress WIFI_GATEWAY{192, 168, 1, 1};
-const IPAddress WIFI_CMD_ADDR{192, 168, 1, 2};
-const IPAddress WIFI_TELEM_ADDR{192, 168, 1, 3};
+const IPAddress WIFI_TELESCOPE_ADDR{192, 168, 1, 2};
+const IPAddress WIFI_USER_ADDR{192, 168, 1, 3};
 const IPAddress WIFI_DNS{8, 8, 8, 8};
 const IPAddress WIFI_SUBNET{255, 255, 255, 0};
 
 static constexpr uint16_t WIFI_CMD_PORT{8000};
 static constexpr uint16_t WIFI_TELEM_PORT{8001};
+static constexpr uint16_t WIFI_CAMERA_PORT{8002};
 
 struct Wifi
 {
@@ -38,6 +39,7 @@ struct Wifi
   CWifi ap; ///< Used to manage the AP
   WiFiUDP cmdReceiver; ///< Used to receive commands
   WiFiUDP telemSender; ///< Used to send telemetry data
+  WiFiUDP cameraSender; ///< Used to send camera data
 };
 
 #endif

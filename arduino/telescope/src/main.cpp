@@ -31,6 +31,7 @@ CollectTelemetryParams gCollectTelemetryParams{};
 RecvCmdParams gRecvCmdParams{};
 MoveBaseServoParams gMoveBaseServoParams{};
 PlanTrajectoryParams gPlanTrajectoryParams{};
+ControlCameraParams gControlCameraParams{};
 
 void setup()
 {
@@ -89,6 +90,11 @@ void setup()
   gPlanTrajectoryParams.moveCmdBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
   gPlanTrajectoryParams.telemetry = &gTelemetry;
   gTaskParams[TASK_PLAN_TRAJECTORY] = &gPlanTrajectoryParams;
+
+  gControlCameraParams.cameraSender = &gWifi.cameraSender;
+  gControlCameraParams.msgBufferHandle = gMsgBufferHandles[TASK_CONTROL_CAMERA];
+  gControlCameraParams.telemetry = &gTelemetry;
+  gTaskParams[TASK_CONTROL_CAMERA] = &gControlCameraParams;
 
   BaseType_t result = createTasks(gTaskParams, gTaskHandles,
                                   gTaskStack, gTaskTCB);

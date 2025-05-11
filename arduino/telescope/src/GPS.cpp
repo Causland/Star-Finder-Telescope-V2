@@ -10,7 +10,7 @@ bool GPS::init()
 
 bool GPS::getData()
 {
-  int retries = 60; // 60 seconds to get a fix
+  int retries = 30; // 30 seconds to get a fix
   DEBUG_PRINT("Waiting for GPS fix...");
   while (retries > 0)
   {
@@ -25,6 +25,7 @@ bool GPS::getData()
       gpsLat = gps.location.lat();
       gpsLon = gps.location.lng();
       gpsAlt = gps.altitude.feet();
+      DEBUG_PRINTLN(" ");
       return true;
     }
     else
@@ -38,7 +39,7 @@ bool GPS::getData()
       --retries;
     }
   }
-  DEBUG_PRINTLN("");
+  DEBUG_PRINTLN(" ");
   return false;
 }
 

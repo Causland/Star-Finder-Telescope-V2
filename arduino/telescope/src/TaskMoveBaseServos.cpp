@@ -14,8 +14,8 @@ static constexpr uint16_t VERT_SERVO_MIN_US{860};
 static constexpr uint16_t VERT_SERVO_MAX_US{1490};
 static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
 
-static constexpr uint8_t HORIZ_SERVO_PIN{10};
-static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{11};
+static constexpr uint8_t HORIZ_SERVO_PIN{5};
+static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{6};
 static constexpr uint16_t HORIZ_SERVO_STOP_US{1500};
 static constexpr uint16_t HORIZ_SERVO_MIN_SPEED_OFFSET_US{30};
 static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_OFFSET_US{220};

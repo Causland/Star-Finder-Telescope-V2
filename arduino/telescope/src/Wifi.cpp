@@ -9,7 +9,7 @@ bool Wifi::init()
   DEBUG_ENTER("Wifi::init()");
 
   // Configure the WiFi access point
-  ap.config(WIFI_CMD_ADDR, WIFI_DNS, WIFI_GATEWAY, WIFI_SUBNET);
+  ap.config(WIFI_TELESCOPE_ADDR, WIFI_DNS, WIFI_GATEWAY, WIFI_SUBNET);
 
   // Start the WiFi access point
   if (ap.beginAP(SECRET_SSID, SECRET_PASS) != WL_AP_LISTENING)
@@ -23,7 +23,7 @@ bool Wifi::init()
   DEBUG_PRINTLN("IP address: " + ap.localIP().toString());
 
   // Start the UDP receiver for commands
-  if (!cmdReceiver.begin(WIFI_CMD_ADDR, WIFI_CMD_PORT))
+  if (!cmdReceiver.begin(WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
   {
     DEBUG_PRINTLN("Failed to start command receiver!");
     return false;
@@ -33,6 +33,13 @@ bool Wifi::init()
   if (!telemSender.begin(WIFI_TELEM_PORT))
   {
     DEBUG_PRINTLN("Failed to start telemetry sender!");
+    return false;
+  }
+
+  // Start the UDP sender for the camera
+  if (!cameraSender.begin(WIFI_CAMERA_PORT))
+  {
+    DEBUG_PRINTLN("Failed to start camera sender!");
     return false;
   }
 
