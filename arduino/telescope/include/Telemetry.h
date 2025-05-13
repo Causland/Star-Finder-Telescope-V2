@@ -1,8 +1,6 @@
 #ifndef __TELEMETRY_H__
 #define __TELEMETRY_H__
 
-#include <Arduino_FreeRTOS.h>
-
 #define TELEM_FIELD(name, type)                    \
 public:                                            \
   void registerTelemField##name(type* const field) \
@@ -22,7 +20,7 @@ public:
   /// @param[in,out] buffer The buffer to hold the serialized data
   /// @param[in] bufferSize The size of the buffer
   /// @return bytes serialized, -1 if buffer is too small
-  int serializeTelemetry(char* buffer, const size_t& bufferSize);
+  int serializeTelemetry(uint8_t* buffer, const size_t& bufferSize);
 
   // General Info (Not from other tasks)
   // These fields are intentionally commented out to show they

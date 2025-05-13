@@ -1,10 +1,9 @@
-#include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
 #include "Commands.h"
 #include "Tasks.h"
 #include "Utils.h"
-#include "Wifi.h"
+#include "WiFiWrapper.h"
 
 static constexpr uint16_t RECEIVE_PERIOD_MS{50};
 

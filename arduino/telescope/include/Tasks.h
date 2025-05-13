@@ -1,11 +1,11 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
-#include <Arduino_FreeRTOS.h>
-#include <lib\FreeRTOS-Kernel-v10.5.1\message_buffer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/message_buffer.h>
 
 #include "Telemetry.h"
-#include "Wifi.h"
+#include "WiFiWrapper.h"
 
 /// UID for each task
 enum TaskID
@@ -18,7 +18,7 @@ enum TaskID
   NUM_TASKS,
 };
 
-static constexpr size_t TASK_STACK_DEPTH{256};
+static constexpr size_t TASK_STACK_DEPTH{1024};
 
 /// Collect Telemetry Task Info
 struct TaskCollectTelemetryInfo
@@ -140,25 +140,5 @@ void taskPlanTrajectory(void* params);
 ///
 /// @param[in] params Holds a pointer to a ControlCameraParams object
 void taskControlCamera(void* params);
-
-/////////////////////////////////////////////////////
-// Define some needed FreeRTOS functions here for static memory allocation
-
-/* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an
-   implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
-   used by the Idle task. */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-                                   StackType_t **ppxIdleTaskStackBuffer,
-                                   uint32_t *pulIdleTaskStackSize);
-
-
-/*-----------------------------------------------------------*/
-
-/* configSUPPORT_STATIC_ALLOCATION and configUSE_TIMERS are both set to 1, so the
-application must provide an implementation of vApplicationGetTimerTaskMemory()
-to provide the memory that is used by the Timer service task. */
-void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-                                    StackType_t **ppxTimerTaskStackBuffer,
-                                    uint32_t *pulTimerTaskStackSize);
 
 #endif

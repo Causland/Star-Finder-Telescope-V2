@@ -12,7 +12,7 @@
   #define AT __FILE__ " (" TOSTRING(__LINE__) "): "
 
   #define DEBUG_INIT \
-            Serial.begin(9600); \
+            Serial.begin(115200); \
             while (!Serial) { ; } \
             Serial.println("I'm awake!");
 
@@ -28,21 +28,21 @@
   #endif
 
   #ifdef DEBUG_TRAJECTORY
-    #define DEBUG_TRAJECTORY(str) DEBUG_PRINTLN(str);
+    #define DEBUG_TRAJECTORY_PRINT(str) DEBUG_PRINTLN(str);
   #else
-    #define DEBUG_TRAJECTORY(str) (void)0
+    #define DEBUG_TRAJECTORY_PRINT(str) (void)0
   #endif
 
   #ifdef DEBUG_TELEMETRY
-    #define DEBUG_TELEMETRY(str) DEBUG_PRINTLN(str);
+    #define DEBUG_TELEMETRY_PRINT(str) DEBUG_PRINTLN(str);
   #else
-    #define DEBUG_TELEMETRY(str) (void)0
+    #define DEBUG_TELEMETRY_PRINT(str) (void)0
   #endif
 
   #ifdef DEBUG_CAMERA
-    #define DEBUG_CAMERA(str) DEBUG_PRINTLN(str);
+    #define DEBUG_CAMERA_PRINT(str) DEBUG_PRINTLN(str);
   #else
-    #define DEBUG_CAMERA(str) (void)0
+    #define DEBUG_CAMERA_PRINT(str) (void)0
   #endif
 
   #ifdef DEBUG_FOREVER_HB
@@ -61,11 +61,11 @@
   #define DEBUG_ENTER(str) (void)0
   #define DEBUG_EXIT(str) (void)0
 
-  #define DEBUG_TRAJECTORY(str) (void)0
+  #define DEBUG_TRAJECTORY_PRINT(str) (void)0
 
-  #define DEBUG_TELEMETRY(str) (void)0
+  #define DEBUG_TELEMETRY_PRINT(str) (void)0
 
-  #define DEBUG_CAMERA(str) (void)0
+  #define DEBUG_CAMERA_PRINT(str) (void)0
   
   #define DEBUG_HEARTBEAT(str) (void)0
 

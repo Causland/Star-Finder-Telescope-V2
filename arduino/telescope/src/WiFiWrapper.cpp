@@ -1,18 +1,23 @@
-#include <WiFiS3.h>
+#include <WiFi.h>
+#include <WiFiAP.h>
 
-#include "arduino_secrets.h"
+#include "secrets.h"
 #include "Utils.h"
-#include "Wifi.h"
+#include "WiFiWrapper.h"
 
-bool Wifi::init()
+bool WiFiWrapper::init()
 {
-  DEBUG_ENTER("Wifi::init()");
+  DEBUG_ENTER("WiFiWrapper::init()");
 
   // Configure the WiFi access point
-  ap.config(WIFI_TELESCOPE_ADDR, WIFI_DNS, WIFI_GATEWAY, WIFI_SUBNET);
+  if (!WiFi.softAPConfig(WIFI_TELESCOPE_ADDR, WIFI_GATEWAY, WIFI_SUBNET))
+  {
+    DEBUG_PRINTLN("Failed to configure WiFi access point!");
+    return false;
+  }
 
   // Start the WiFi access point
-  if (ap.beginAP(SECRET_SSID, SECRET_PASS) != WL_AP_LISTENING)
+  if (!WiFi.softAP(SECRET_SSID, SECRET_PASS))
   {
     DEBUG_PRINTLN("Failed to start WiFi access point!");
     return false;
@@ -20,7 +25,7 @@ bool Wifi::init()
   DEBUG_PRINTLN("WiFi access point started successfully!");
 
   // Print the IP address of the access point
-  DEBUG_PRINTLN("IP address: " + ap.localIP().toString());
+  DEBUG_PRINTLN("IP address: " + WiFi.softAPIP().toString());
 
   // Start the UDP receiver for commands
   if (!cmdReceiver.begin(WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
@@ -43,20 +48,20 @@ bool Wifi::init()
     return false;
   }
 
-  DEBUG_EXIT("Wifi::init()");
+  DEBUG_EXIT("WiFiWrapper::init()");
   return true;
 }
 
-void Wifi::stop()
+void WiFiWrapper::stop()
 {
-  DEBUG_ENTER("Wifi::stop()");
+  DEBUG_ENTER("WiFiWrapper::stop()");
 
   // Stop the WiFi access point
-  ap.end();
+  WiFi.softAPdisconnect(true);
 
   // Stop the UDP receiver and sender
   cmdReceiver.stop();
   telemSender.stop();
 
-  DEBUG_EXIT("Wifi::stop()");
+  DEBUG_EXIT("WiFiWrapper::stop()");
 }

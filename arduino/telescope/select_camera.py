@@ -4,7 +4,7 @@ import os
 
 platform_name = "OV2640_MINI_2MP"
 
-memsaver_path = os.path.join(".pio", "libdeps", "uno_r4_wifi", "ArduCAM", "memorysaver.h")
+memsaver_path = os.path.join(".pio", "libdeps", "esp_wroom_32", "ArduCAM", "memorysaver.h")
 
 lines = []
 with open(memsaver_path, "r") as file:

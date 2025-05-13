@@ -1,16 +1,15 @@
 #include <ArduCAM.h>
-#include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
 
 #include "Commands.h"
 #include "Tasks.h"
-#include "Wifi.h"
+#include "WiFiWrapper.h"
 #include "Utils.h"
 
-ArduCAM cam{OV2640, CS};
-char camBuf[528];
+ArduCAM cam{OV2640, SS};
+uint8_t camBuf[1024];
 ControlCameraCmd_t controlCameraCmd;
 
 void taskControlCamera(void* params)
@@ -23,8 +22,8 @@ void taskControlCamera(void* params)
   Telemetry* telemetry = cameraParams->telemetry;
 
   Wire.begin();
-  pinMode(CS, OUTPUT);
-  digitalWrite(CS, HIGH);
+  pinMode(SS, OUTPUT);
+  digitalWrite(SS, HIGH);
   SPI.begin();
 
   // Reset the CPLD
@@ -39,7 +38,7 @@ void taskControlCamera(void* params)
     cam.write_reg(ARDUCHIP_TEST1, 0x55);
     if (cam.read_reg(ARDUCHIP_TEST1) != 0x55)
     {
-      DEBUG_CAMERA("Waiting for camera SPI bus OK");
+      DEBUG_CAMERA_PRINT("Waiting for camera SPI bus OK");
       vTaskDelay(1000 * portTICK_PERIOD_MS);
     }
     else
@@ -60,7 +59,7 @@ void taskControlCamera(void* params)
     cam.rdSensorReg8_8(OV2640_CHIPID_LOW, &pid);
     if ((vid != 0x26 ) && (( pid != 0x41 ) || ( pid != 0x42 )))
     {
-      DEBUG_CAMERA("Waiting to find OV2640 module on SPI");
+      DEBUG_CAMERA_PRINT("Waiting to find OV2640 module on SPI");
       vTaskDelay(1000 * portTICK_PERIOD_MS);
     }
     else
@@ -95,7 +94,7 @@ void taskControlCamera(void* params)
       {
         case CTRL_CAM_CONFIG:
         {
-          DEBUG_CAMERA("Received Camera Config Cmd: " +
+          DEBUG_CAMERA_PRINT("Received Camera Config Cmd: " +
                         String(controlCameraCmd.cfg.configID) + ", " +
                         String(controlCameraCmd.cfg.value));
 
@@ -103,11 +102,11 @@ void taskControlCamera(void* params)
         }
         case CTRL_CAM_PHOTO:
         {
-          DEBUG_CAMERA("Received Camera Photo Cmd");
+          DEBUG_CAMERA_PRINT("Received Camera Photo Cmd");
           cam.flush_fifo();
           cam.clear_fifo_flag();
 
-          DEBUG_CAMERA("Starting Capture");
+          DEBUG_CAMERA_PRINT("Starting Capture");
           cam.start_capture();
 
           // Wait for the capture to complete. Hopefully very quick
@@ -117,18 +116,18 @@ void taskControlCamera(void* params)
           const uint32_t len = cam.read_fifo_length();
           if (len >= MAX_FIFO_SIZE)
           {
-            DEBUG_CAMERA("Camera FIFO over size");
+            DEBUG_CAMERA_PRINT("Camera FIFO over size");
             cam.clear_fifo_flag();
             break;
           }
           if (len == 0)
           {
-            DEBUG_CAMERA("Camera FIFO empty");
+            DEBUG_CAMERA_PRINT("Camera FIFO empty");
             cam.clear_fifo_flag();
             break;
           }
 
-          DEBUG_CAMERA("Receiving/Sending data via SPI");
+          DEBUG_CAMERA_PRINT("Receiving/Sending data via SPI");
           cam.CS_LOW();
           cam.set_fifo_burst();
           for (size_t i=0; i<len; ++i)
@@ -155,12 +154,12 @@ void taskControlCamera(void* params)
           // Finish transfer
           cam.CS_HIGH();
           cam.clear_fifo_flag();
-          DEBUG_CAMERA("Capture complete");
+          DEBUG_CAMERA_PRINT("Capture complete");
           break;
         }
         case CTRL_CAM_VIDEO:
         {
-          DEBUG_CAMERA("Received Camera Video Cmd: " +
+          DEBUG_CAMERA_PRINT("Received Camera Video Cmd: " +
                         String(controlCameraCmd.vid.duration));
 
           break;

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <TinyGPSPlus.h>
 
-#include "arduino_secrets.h"
+#include "secrets.h"
 
 struct GPS
 {

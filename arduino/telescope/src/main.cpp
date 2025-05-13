@@ -1,4 +1,3 @@
-#include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
 #include "Commands.h"
@@ -6,7 +5,7 @@
 #include "Tasks.h"
 #include "Telemetry.h"
 #include "Utils.h"
-#include "Wifi.h"
+#include "WiFiWrapper.h"
 
 /// Global task objects used by tasks
 void* gTaskParams[NUM_TASKS]{0};
@@ -24,7 +23,7 @@ Telemetry gTelemetry{};
 GPS gGPS{};
 
 /// Global Wifi objects used by tasks
-Wifi gWifi;
+WiFiWrapper gWifi;
 
 /// Parameter objects used by tasks
 CollectTelemetryParams gCollectTelemetryParams{};

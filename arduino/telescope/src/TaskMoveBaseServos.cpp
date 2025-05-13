@@ -1,5 +1,5 @@
-#include <Arduino_FreeRTOS.h>
-#include <lib/FreeRTOS-Kernel-v10.5.1\message_buffer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/message_buffer.h>
 #include <Arduino.h>
 
 #include "Commands.h"
@@ -9,13 +9,13 @@
 #include "PIDController.h"
 
 // Define servo constants
-static constexpr uint8_t VERT_SERVO_PIN{9};
+static constexpr uint8_t VERT_SERVO_PIN{32};
 static constexpr uint16_t VERT_SERVO_MIN_US{860};
 static constexpr uint16_t VERT_SERVO_MAX_US{1490};
 static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
 
-static constexpr uint8_t HORIZ_SERVO_PIN{5};
-static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{6};
+static constexpr uint8_t HORIZ_SERVO_PIN{35};
+static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{34};
 static constexpr uint16_t HORIZ_SERVO_STOP_US{1500};
 static constexpr uint16_t HORIZ_SERVO_MIN_SPEED_OFFSET_US{30};
 static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_OFFSET_US{220};
@@ -69,7 +69,7 @@ void taskMoveBaseServos(void* params)
       targetEl = moveServoCmd.el;
 
       // Move the vertical servo to the specified angle
-      int numUs{moveServoCmd.el * vertServo.usPerDeg + vertServo.minUs};
+      int numUs{static_cast<int>(moveServoCmd.el * vertServo.usPerDeg + vertServo.minUs)};
       if (numUs < vertServo.minUs) numUs = vertServo.minUs;
       else if (numUs > vertServo.maxUs) numUs = vertServo.maxUs;
       vertServo.writeMicroseconds(numUs);

@@ -2,7 +2,7 @@
 #define __CUSTOM_SERVO_H__
 
 #include <Arduino.h>
-#include <Servo.h>
+#include <ESP32Servo.h>
 
 /*!
  * Servo wrapper class to provide some default properties and state to servos.

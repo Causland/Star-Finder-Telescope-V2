@@ -1,4 +1,3 @@
-#include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
 #include "Commands.h"
@@ -7,7 +6,7 @@
 #include "Utils.h"
 
 // Statically allocate a buffer to hold the telemetry data
-char telemBuffer[sizeof(Telemetry) * 2]{0};
+uint8_t telemBuffer[sizeof(Telemetry) * 2]{0};
 uint16_t telemRate{250}; ///< Telemetry rate in milliseconds
 
 void taskCollectTelemetry(void* params)
@@ -31,7 +30,8 @@ void taskCollectTelemetry(void* params)
     {
       // Deserialize the telemetry rate command
       TelemetryRateCmd_t* cmd = reinterpret_cast<TelemetryRateCmd_t*>(telemBuffer);
-      DEBUG_TELEMETRY("Telemetry rate command received: " + String(cmd->rate) + " ms");
+      DEBUG_TELEMETRY_PRINT("Telemetry rate command received: " + 
+                            String(cmd->rate) + " ms");
 
       // Check if the command is valid
       if (cmd->rate < MIN_TELEM_RATE_MS)
@@ -45,7 +45,7 @@ void taskCollectTelemetry(void* params)
     }
 
     // Report the telemetry data
-    DEBUG_TELEMETRY("Collecting telemetry data...");
+    DEBUG_TELEMETRY_PRINT("Collecting telemetry data...");
     int bytesSerialized = telemetry->serializeTelemetry(telemBuffer, sizeof(telemBuffer));
     if (bytesSerialized > 0)
     {

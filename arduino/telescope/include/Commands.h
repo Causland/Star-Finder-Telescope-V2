@@ -1,8 +1,8 @@
 #ifndef __COMMANDS_H__
 #define __COMMANDS_H__
 
-#include <Arduino_FreeRTOS.h>
-#include <lib/FreeRTOS-Kernel-v10.5.1\message_buffer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/message_buffer.h>
 #include <stdint.h>
 
 #include "Tasks.h"
@@ -82,7 +82,7 @@ struct TrajectoryPart_t
 #pragma pack(pop) // Restore previous packing alignment
 
 template <typename T>
-static bool serialize(const T& obj, char* buffer, const size_t& bufferSize)
+static bool serialize(const T& obj, uint8_t* buffer, const size_t& bufferSize)
 {
   if (bufferSize < sizeof(T))
   {

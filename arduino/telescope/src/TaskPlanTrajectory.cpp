@@ -1,4 +1,3 @@
-#include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
 #include "Commands.h"
@@ -41,7 +40,7 @@ void processTrajectory(const TrajectoryEntry_t* trajectory, const uint8_t numEnt
       vTaskDelay(pdMS_TO_TICKS(timeToNextEntry));
     }
 
-    DEBUG_TRAJECTORY("Processing trajectory entry: " + 
+    DEBUG_TRAJECTORY_PRINT("Processing trajectory entry: " + 
                       String(trajectory[currEntry].t) + ", " + 
                       String(trajectory[currEntry].az) + ", " + 
                       String(trajectory[currEntry].el));
@@ -88,7 +87,7 @@ void taskPlanTrajectory(void* params)
                                              sizeof(TrajectoryPart_t), portMAX_DELAY);
     if (bytesRead >= sizeof(TrajectoryHeader_t))
     {
-      DEBUG_TRAJECTORY("Received trajectory part: " + 
+      DEBUG_TRAJECTORY_PRINT("Received trajectory part: " + 
                         String(trajectoryPart.header.seqNum) + ", " + 
                         String(trajectoryPart.header.totalParts) + ", " + 
                         String(trajectoryPart.header.numEntries));
@@ -167,7 +166,8 @@ void taskPlanTrajectory(void* params)
       if (trajectoryPart.header.seqNum == numParts)
       {
         // Last part of the trajectory received. Process the trajectory
-        DEBUG_TRAJECTORY("Received complete trajectory with " + String(numEntries) + " entries.");
+        DEBUG_TRAJECTORY_PRINT("Received complete trajectory with " + 
+                               String(numEntries) + " entries.");
         processTrajectory(trajectory, numEntries, startTime, moveCmdBufferHandle);
         resetTrajectory(); // We are done with this trajectory
       }

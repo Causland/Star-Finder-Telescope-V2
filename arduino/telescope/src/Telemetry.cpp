@@ -2,24 +2,24 @@
 #include "Telemetry.h"
 #include "Utils.h"
 
-#define SERIALIZE_FIELD(name)                                               \
-  if (name != nullptr)                                                      \
-  {                                                                         \
-    if (!serialize(*name, buffer + offset, bufferSize - offset))            \
-    {                                                                       \
-      DEBUG_TELEMETRY("Telemetry field " #name " does not fit in buffer!"); \
-      return -1;                                                            \
-    }                                                                       \
-                                                                            \
-    offset += sizeof(*name);                                                \
-  }                                                                         \
-  else                                                                      \ 
-  {                                                                         \
-    DEBUG_TELEMETRY("Telemetry field " #name " is null!");                  \
-    return -1;                                                              \
+#define SERIALIZE_FIELD(name)                                                     \
+  if (name != nullptr)                                                            \
+  {                                                                               \
+    if (!serialize(*name, buffer + offset, bufferSize - offset))                  \
+    {                                                                             \
+      DEBUG_TELEMETRY_PRINT("Telemetry field " #name " does not fit in buffer!"); \
+      return -1;                                                                  \
+    }                                                                             \
+                                                                                  \
+    offset += sizeof(*name);                                                      \
+  }                                                                               \
+  else                                                                            \
+  {                                                                               \
+    DEBUG_TELEMETRY_PRINT("Telemetry field " #name " is null!");                  \
+    return -1;                                                                    \
   }
 
-int Telemetry::serializeTelemetry(char* buffer, const size_t& bufferSize)
+int Telemetry::serializeTelemetry(uint8_t* buffer, const size_t& bufferSize)
 {
   if (buffer == nullptr) return false;
 

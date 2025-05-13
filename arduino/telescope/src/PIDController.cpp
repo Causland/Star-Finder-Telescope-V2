@@ -1,3 +1,5 @@
+#include <ESP32Servo.h>
+
 #include "PIDController.h"
 
 void PIDController::move()
@@ -50,7 +52,7 @@ void PIDController::move()
   const double propPortion{error * K_P};
   const double integPortion{integral * K_I};
   const double derivPortion{filteredVel * K_D};
-  const int offset{propPortion + integPortion + derivPortion};
+  const int offset{static_cast<int>(propPortion + integPortion + derivPortion)};
 
 #ifdef DEBUG_PID
   static char buf[128]{};

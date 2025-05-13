@@ -1,8 +1,6 @@
 #ifndef __PID_CONTROLLER_H__
 #define __PID_CONTROLLER_H__
 
-#include <Servo.h>
-
 #include "CustomServo.h"
 #include "Utils.h"
 
