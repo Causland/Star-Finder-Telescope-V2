@@ -10,7 +10,7 @@ bool GPS::init()
 
 bool GPS::getData()
 {
-  int retries = 30; // 30 seconds to get a fix
+  int retries = 5; // 30 seconds to get a fix
   DEBUG_PRINT("Waiting for GPS fix...");
   while (retries > 0)
   {

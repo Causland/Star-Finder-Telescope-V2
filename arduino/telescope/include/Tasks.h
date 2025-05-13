@@ -7,6 +7,7 @@
 #include "Telemetry.h"
 #include "WiFiWrapper.h"
 
+
 /// UID for each task
 enum TaskID
 {
@@ -18,7 +19,7 @@ enum TaskID
   NUM_TASKS,
 };
 
-static constexpr size_t TASK_STACK_DEPTH{1024};
+static constexpr size_t TASK_STACK_DEPTH{2048};
 
 /// Collect Telemetry Task Info
 struct TaskCollectTelemetryInfo
@@ -62,6 +63,8 @@ struct CollectTelemetryParams
   MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
                                          ///< receive telem rate commands
   Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
+  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
+                                 ///< proceed into its forever loop
 };
 
 /// Receive Command Task Parameters
@@ -71,6 +74,8 @@ struct RecvCmdParams
   TaskHandle_t* taskHandles; ///< Pointer to the array of task handles
   MessageBufferHandle_t* msgBufferHandles; ///< Pointer to the array of message buffer handles
   Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
+  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
+                                 ///< proceed into its forever loop
 };
 
 /// Move Base Servos Task Parameters
@@ -79,6 +84,8 @@ struct MoveBaseServoParams
   MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
                                          ///< receive move commands
   Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
+  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
+                                 ///< proceed into its forever loop
 };
 
 /// Plan Trajectory Task Parameters
@@ -89,6 +96,8 @@ struct PlanTrajectoryParams
   MessageBufferHandle_t moveCmdBufferHandle; ///< Handle to the message buffer for this task to
                                              ///< send move commands to the servos
   Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
+  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
+                                 ///< proceed into its forever loop
 };
 
 /// Control Camera Task Parameters
@@ -98,6 +107,8 @@ struct ControlCameraParams
   MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
                                          ///< receive camera commands
   Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
+  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
+                                 ///< proceed into its forever loop
 };
 
 /// Create all tasks needed for the lifetime of the telescope

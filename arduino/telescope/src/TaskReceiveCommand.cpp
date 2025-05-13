@@ -9,11 +9,14 @@ static constexpr uint16_t RECEIVE_PERIOD_MS{50};
 
 void taskReceiveCommand(void* params)
 {
+  DEBUG_ENTER("taskReceiveCommand()");
+
   RecvCmdParams* cmdParams = static_cast<RecvCmdParams*>(params);
-  WiFiUDP* cmdReceiver = static_cast<WiFiUDP*>(cmdParams->cmdReceiver);
-  TaskHandle_t* taskHandles = static_cast<TaskHandle_t*>(cmdParams->taskHandles);
-  MessageBufferHandle_t* msgBufferHandles = static_cast<MessageBufferHandle_t*>(cmdParams->msgBufferHandles);
-  Telemetry* telemetry = static_cast<Telemetry*>(cmdParams->telemetry);
+  WiFiUDP* cmdReceiver = cmdParams->cmdReceiver;
+  TaskHandle_t* taskHandles = cmdParams->taskHandles;
+  MessageBufferHandle_t* msgBufferHandles = cmdParams->msgBufferHandles;
+  Telemetry* telemetry = cmdParams->telemetry;
+  EventGroupHandle_t startEvent = cmdParams->startEvent;
 
   // Register task telemetry
   uint16_t cmdsReceived{0};
@@ -23,7 +26,7 @@ void taskReceiveCommand(void* params)
   // The buffer size should be large enough to hold the largest command packet
   char cmdBuffer[MAX_CMD_SIZE]{0};
 
-  DEBUG_ENTER("taskReceiveCommand()");
+  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
 
   FOREVER
   {

@@ -14,6 +14,8 @@ TaskHandle_t gTaskHandles[NUM_TASKS]{0};
 StackType_t gTaskStack[NUM_TASKS][TASK_STACK_DEPTH]{0};
 StaticTask_t gTaskTCB[NUM_TASKS]{0};
 
+EventGroupHandle_t gStartEventGroup;
+
 uint8_t gMsgBufferStorage[NUM_TASKS][MAX_CMD_SIZE]{0};
 StaticMessageBuffer_t gMsgBuffer[NUM_TASKS]{0};
 MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
@@ -69,44 +71,51 @@ void setup()
     while (true) { ; } // There was a failure allocating command buffers. Block and loop forever
   }
 
+  // Create the event group to signal to tasks to begin their forever loops
+  gStartEventGroup = xEventGroupCreate();
+
   // Provide parameters to tasks which need them
   gCollectTelemetryParams.telemSender = &gWifi.telemSender;
   gCollectTelemetryParams.msgBufferHandle = gMsgBufferHandles[TASK_COLLECT_TELEMETRY];
   gCollectTelemetryParams.telemetry = &gTelemetry;
+  gCollectTelemetryParams.startEvent = gStartEventGroup;
   gTaskParams[TASK_COLLECT_TELEMETRY] = &gCollectTelemetryParams;
 
   gRecvCmdParams.cmdReceiver = &gWifi.cmdReceiver;
   gRecvCmdParams.taskHandles = gTaskHandles;
   gRecvCmdParams.msgBufferHandles = gMsgBufferHandles;
   gRecvCmdParams.telemetry = &gTelemetry;
+  gRecvCmdParams.startEvent = gStartEventGroup;
   gTaskParams[TASK_RECEIVE_COMMAND] = &gRecvCmdParams;
 
   gMoveBaseServoParams.msgBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
   gMoveBaseServoParams.telemetry = &gTelemetry;
+  gMoveBaseServoParams.startEvent = gStartEventGroup;
   gTaskParams[TASK_MOVE_BASE_SERVOS] = &gMoveBaseServoParams;
 
   gPlanTrajectoryParams.msgBufferHandle = gMsgBufferHandles[TASK_PLAN_TRAJECTORY];
   gPlanTrajectoryParams.moveCmdBufferHandle = gMsgBufferHandles[TASK_MOVE_BASE_SERVOS];
   gPlanTrajectoryParams.telemetry = &gTelemetry;
+  gPlanTrajectoryParams.startEvent = gStartEventGroup;
   gTaskParams[TASK_PLAN_TRAJECTORY] = &gPlanTrajectoryParams;
 
   gControlCameraParams.cameraSender = &gWifi.cameraSender;
   gControlCameraParams.msgBufferHandle = gMsgBufferHandles[TASK_CONTROL_CAMERA];
   gControlCameraParams.telemetry = &gTelemetry;
+  gControlCameraParams.startEvent = gStartEventGroup;
   gTaskParams[TASK_CONTROL_CAMERA] = &gControlCameraParams;
 
-  BaseType_t result = createTasks(gTaskParams, gTaskHandles,
-                                  gTaskStack, gTaskTCB);
-  if (result != pdPASS)
+  bool result = createTasks(gTaskParams, gTaskHandles,
+                            gTaskStack, gTaskTCB);
+  if (!result)
   {
     DEBUG_PRINTLN("Failed to create all tasks! Stopping...");
     while (true) { ; } // There was a failure creating tasks. Block and loop forever
   }
 
-  // Once tasks are created, scheduler takes over running the program
-  vTaskStartScheduler();
+  xEventGroupSetBits(gStartEventGroup, BIT0); // Signal tasks to start
 
-  DEBUG_EXIT("setup()"); // This should never be reached
+  DEBUG_EXIT("setup()");
 }
 
 void loop()

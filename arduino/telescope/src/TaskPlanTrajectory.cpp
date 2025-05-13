@@ -71,12 +71,15 @@ void taskPlanTrajectory(void* params)
   MessageBufferHandle_t msgBufferHandle = planParams->msgBufferHandle;
   MessageBufferHandle_t moveCmdBufferHandle = planParams->moveCmdBufferHandle;
   Telemetry* telemetry = planParams->telemetry;
+  EventGroupHandle_t startEvent = planParams->startEvent;
 
   // Register task telemetry
   telemetry->registerTelemFieldTrajRunning(&trajRunning);
   telemetry->registerTelemFieldTrajNumEntries(&numEntries);
   telemetry->registerTelemFieldTrajCurrEntry(&currEntry);
   telemetry->registerTelemFieldTimeToNextEntry(&timeToNextEntry);
+
+  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
 
   FOREVER
   {

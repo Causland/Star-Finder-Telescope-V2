@@ -9,13 +9,13 @@
 #include "PIDController.h"
 
 // Define servo constants
-static constexpr uint8_t VERT_SERVO_PIN{32};
+static constexpr uint8_t VERT_SERVO_PIN{25};
 static constexpr uint16_t VERT_SERVO_MIN_US{860};
 static constexpr uint16_t VERT_SERVO_MAX_US{1490};
 static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
 
-static constexpr uint8_t HORIZ_SERVO_PIN{35};
-static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{34};
+static constexpr uint8_t HORIZ_SERVO_PIN{26};
+static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{27};
 static constexpr uint16_t HORIZ_SERVO_STOP_US{1500};
 static constexpr uint16_t HORIZ_SERVO_MIN_SPEED_OFFSET_US{30};
 static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_OFFSET_US{220};
@@ -38,8 +38,10 @@ void taskMoveBaseServos(void* params)
 {
   DEBUG_ENTER("taskBaseMoveServos()");
 
-  MessageBufferHandle_t msgBufferHandle = static_cast<MoveBaseServoParams*>(params)->msgBufferHandle;
-  Telemetry* telemetry = static_cast<MoveBaseServoParams*>(params)->telemetry;
+  MoveBaseServoParams* servoParams = static_cast<MoveBaseServoParams*>(params);
+  MessageBufferHandle_t msgBufferHandle = servoParams->msgBufferHandle;
+  Telemetry* telemetry = servoParams->telemetry;
+  EventGroupHandle_t startEvent = servoParams->startEvent;
 
   // Register task telemetry
   telemetry->registerTelemFieldCurrAz(&horizPID.prevFilteredCurrAngle);
@@ -52,6 +54,8 @@ void taskMoveBaseServos(void* params)
   horizServo.init();
 
   horizPID.updateTarget(20);
+
+  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
 
   FOREVER
   {

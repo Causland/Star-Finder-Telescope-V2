@@ -9,7 +9,7 @@
 #include "Utils.h"
 
 ArduCAM cam{OV2640, SS};
-uint8_t camBuf[1024];
+uint8_t camBuf[484];
 ControlCameraCmd_t controlCameraCmd;
 
 void taskControlCamera(void* params)
@@ -20,6 +20,7 @@ void taskControlCamera(void* params)
   WiFiUDP* cameraSender = cameraParams->cameraSender;
   MessageBufferHandle_t msgBufferHandle = cameraParams->msgBufferHandle;
   Telemetry* telemetry = cameraParams->telemetry;
+  EventGroupHandle_t startEvent = cameraParams->startEvent;
 
   Wire.begin();
   pinMode(SS, OUTPUT);
@@ -80,6 +81,8 @@ void taskControlCamera(void* params)
   vTaskDelay(1000 * portTICK_PERIOD_MS);
 
   cam.clear_fifo_flag();
+
+  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
 
   FOREVER
   {

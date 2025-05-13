@@ -17,8 +17,9 @@ void taskCollectTelemetry(void* params)
   WiFiUDP* telemSender = telemParams->telemSender;
   MessageBufferHandle_t msgBufferHandle = telemParams->msgBufferHandle;
   Telemetry* telemetry = telemParams->telemetry;
+  EventGroupHandle_t startEvent = telemParams->startEvent;
 
-  vTaskDelay(3000 * portTICK_PERIOD_MS); // Wait 3 seconds for system to start up
+  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
 
   FOREVER
   {
