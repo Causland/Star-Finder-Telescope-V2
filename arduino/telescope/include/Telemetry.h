@@ -27,6 +27,7 @@ public:
   // will be serialized in this order
 
   // TELEM_FIELD(SystemTime, unsigned long);
+  // TELEM_FIELD(FreeHeap, size_t);
 
   // Command Info
   TELEM_FIELD(CmdsReceived, uint16_t);
