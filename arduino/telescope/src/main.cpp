@@ -10,11 +10,7 @@
 /// Global task objects used by tasks
 void* gTaskParams[NUM_TASKS]{0};
 TaskHandle_t gTaskHandles[NUM_TASKS]{0};
-StackType_t gTaskStack[NUM_TASKS][TASK_STACK_DEPTH]{0};
-StaticTask_t gTaskTCB[NUM_TASKS]{0};
-
 EventGroupHandle_t gStartEventGroup;
-
 MessageBufferHandle_t gMsgBufferHandles[NUM_TASKS]{0};
 Telemetry gTelemetry{};
 
@@ -101,9 +97,8 @@ void setup()
   gControlCameraParams.startEvent = gStartEventGroup;
   gTaskParams[TASK_CONTROL_CAMERA] = &gControlCameraParams;
 
-  bool result = createTasks(gTaskParams, gTaskHandles,
-                            gTaskStack, gTaskTCB);
-  if (!result)
+  BaseType_t result = createTasks(gTaskParams, gTaskHandles);
+  if (result != pdPASS)
   {
     DEBUG_PRINTLN("Failed to create all tasks! Stopping...");
     while (true) { ; } // There was a failure creating tasks. Block and loop forever
