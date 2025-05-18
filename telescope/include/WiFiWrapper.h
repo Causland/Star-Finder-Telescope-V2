@@ -1,8 +1,7 @@
 #ifndef __WIFI_H__
 #define __WIFI_H__
 
-#include <WiFi.h>
-#include <WiFiUdp.h>
+#include <esp_wifi.h>
 
 const IPAddress WIFI_GATEWAY{192, 168, 1, 1};
 const IPAddress WIFI_TELESCOPE_ADDR{192, 168, 1, 2};

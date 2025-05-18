@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include "Commands.h"
 #include "Tasks.h"
 #include "Utils.h"

@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include <freertos/FreeRTOS.h>
 
 #include "Commands.h"
 #include "GPS.h"
@@ -26,7 +26,7 @@ MoveBaseServoParams gMoveBaseServoParams{};
 PlanTrajectoryParams gPlanTrajectoryParams{};
 ControlCameraParams gControlCameraParams{};
 
-void setup()
+extern "C" void app_main()
 {
   DEBUG_INIT;
   DEBUG_ENTER("setup()");
@@ -106,10 +106,5 @@ void setup()
 
   xEventGroupSetBits(gStartEventGroup, BIT0); // Signal tasks to start
 
-  DEBUG_EXIT("setup()");
-}
-
-void loop()
-{
-  // Nothing to do here. Everything is managed by scheduler
+  DEBUG_EXIT("app_main()");
 }

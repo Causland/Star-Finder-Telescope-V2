@@ -1,5 +1,4 @@
 #include <ArduCAM.h>
-#include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
 

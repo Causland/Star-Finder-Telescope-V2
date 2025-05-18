@@ -1,7 +1,6 @@
 #ifndef __CUSTOM_SERVO_H__
 #define __CUSTOM_SERVO_H__
 
-#include <Arduino.h>
 #include <ESP32Servo.h>
 
 /*!

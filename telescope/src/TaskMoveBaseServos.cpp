@@ -1,6 +1,5 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/message_buffer.h>
-#include <Arduino.h>
 
 #include "Commands.h"
 #include "Tasks.h"

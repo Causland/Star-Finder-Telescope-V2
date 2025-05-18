@@ -1,7 +1,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <Arduino.h>
+#include <cstdio>
 
 #define FOREVER for(;;)
 
@@ -12,15 +12,13 @@
   #define AT __FILE__ " (" TOSTRING(__LINE__) "): "
 
   #define DEBUG_INIT \
-            Serial.begin(115200); \
-            while (!Serial) { ; } \
-            Serial.println("I'm awake!");
+            printf("I'm awake!\n"); fflush(stdout);
 
-  #define DEBUG_PRINT(str) Serial.print(AT str)
-  #define DEBUG_PRINTLN(str) Serial.println(AT str)
+  #define DEBUG_PRINT(str) printf(AT str); fflush(stdout);
+  #define DEBUG_PRINTLN(str) printf(AT str##"\n"); fflush(stdout);
 
   #ifdef DEBUG_ENTER_EXIT
-    #define DEBUG_ENTER(str) DEBUG_PRINTLN("Entering: " str)
+    #define DEBUG_ENTER(str) DEBUG_PRINTLN("Entering: " str) 
     #define DEBUG_EXIT(str) DEBUG_PRINTLN("Exiting: " str)
   #else
     #define DEBUG_ENTER(str) (void)0
