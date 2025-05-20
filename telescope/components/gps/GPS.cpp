@@ -24,7 +24,7 @@ bool GPS::getData()
     {
       gpsLat = gps.location.lat();
       gpsLon = gps.location.lng();
-      gpsAlt = gps.altitude.feet();
+      gpsAlt = gps.altitude.meters();
       DEBUG_PRINTLN(" ");
       return true;
     }

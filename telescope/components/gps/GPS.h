@@ -1,7 +1,7 @@
 #ifndef __GPS_H__
 #define __GPS_H__
 
-#include <TinyGPSPlus.h>
+#include <TinyGPS++.h>
 
 #include "secrets.h"
 

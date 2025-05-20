@@ -1,6 +1,8 @@
 build/
+managed_components/
 
 **/secrets.h
 sdkconfig.old
+dependencies.lock
 
 .vscode/settings.json
