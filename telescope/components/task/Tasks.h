@@ -1,153 +1,85 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
-#include <freertos/FreeRTOS.h>
-#include <freertos/message_buffer.h>
+#include <eps_log.h>
+#include <esp_pthread.h>
 
-#include "Telemetry.h"
-#include "WiFiWrapper.h"
-
-
-/// UID for each task
-enum TaskID
+class Tasks
 {
-  TASK_COLLECT_TELEMETRY,
-  TASK_RECEIVE_COMMAND,
-  TASK_MOVE_BASE_SERVOS,
-  TASK_PLAN_TRAJECTORY,
-  TASK_CONTROL_CAMERA,
-  NUM_TASKS,
+public:
+  /// UID for each task
+  enum TaskID
+  {
+    TASK_COLLECT_TELEMETRY,
+    TASK_RECEIVE_COMMAND,
+    TASK_MOVE_BASE_SERVOS,
+    TASK_PLAN_TRAJECTORY,
+    TASK_CONTROL_CAMERA,
+    TASK_FIND_POSITION,
+    NUM_TASKS,
+  };
+
+  static constexpr esp_pthread_cfg_t collectTelemCfg
+                                      {4096, 2, false, "CollectTelem", 1};
+  static constexpr esp_pthread_cfg_t receiveCommandCfg
+                                      {4096, 2, false, "ReceiveCommand", 1};
+  static constexpr esp_pthread_cfg_t moveBaseServosCfg
+                                      {8192, 2, false, "MoveBaseServos", 1};
+  static constexpr esp_pthread_cfg_t planTrajectoryCfg
+                                      {4096, 2, false, "PlanTrajectory", 1};
+  static constexpr esp_pthread_cfg_t controlCameraCfg
+                                      {4096, 2, false, "ControlCamera", 1};
+  static constexpr esp_pthread_cfg_t findPositionCfg
+                                      {4096, 2, false, "FindGPSPos", 1};
+
+  static bool setTask(CustomTask* const task, const TaskID& id)
+  {
+    if (id >= NUM_TASKS)
+    {
+      return false;
+    }
+
+    tasks[id] = task;
+  }
+
+  static CustomTask* getTask(const TaskID& id)
+  {
+    if (id >= NUM_TASKS)
+    {
+      return nullptr;
+    }
+
+    return tasks[id].lock();
+  }
+
+  static startTasks()
+  {
+    for (auto* task : tasks)
+    {
+      if (!task)
+      {
+        ESP_LOGE(pcTaskGetName(NULL), "Task is a nullptr during start");
+        continue;
+      }
+      task->start();
+    }
+  }
+
+  static stopTasks()
+  {
+    for (auto* task : tasks)
+    {
+      if (!task)
+      {
+        ESP_LOGE(pcTaskGetName(NULL), "Task is a nullptr during stop");
+        continue;
+      }
+      tasks.stop();
+    }
+  }
+
+private:
+  static std::array<CustomTask*, NUM_TASKS> tasks;
 };
-
-/// Collect Telemetry Task Info
-struct TaskCollectTelemetryInfo
-{
-  static constexpr const char* const NAME{"CollectTelem"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{1024};
-  static constexpr UBaseType_t PRIORITY{2};
-};
-
-/// Receive Command Task Info
-struct TaskReceiveCommandInfo
-{
-  static constexpr const char* const NAME{"ReceiveCommand"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{1024};
-  static constexpr UBaseType_t PRIORITY{2};
-};
-
-/// Move Base Servos Task Info
-struct TaskMoveBaseServosInfo
-{
-  static constexpr const char* const NAME{"MoveBaseServos"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{2048};
-  static constexpr UBaseType_t PRIORITY{2};
-};
-
-/// Plan Trajectory Task Info
-struct TaskPlanTrajectoryInfo
-{
-  static constexpr const char* const NAME{"PlanTrajectory"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{1024};
-  static constexpr UBaseType_t PRIORITY{2};
-};
-
-/// Control Camera Task Info
-struct TaskControlCameraInfo
-{
-  static constexpr const char* const NAME{"ControlCamera"};
-  static constexpr configSTACK_DEPTH_TYPE STACK_DEPTH{1024};
-  static constexpr UBaseType_t PRIORITY{2};
-};
-
-/// Collect Telemetry Task Parameters
-struct CollectTelemetryParams
-{
-  WiFiUDP* telemSender; ///< Pointer to the telemetry sender object
-  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
-                                         ///< receive telem rate commands
-  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
-  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
-                                 ///< proceed into its forever loop
-};
-
-/// Receive Command Task Parameters
-struct RecvCmdParams
-{
-  WiFiUDP* cmdReceiver; ///< Pointer to the command receiver object
-  TaskHandle_t* taskHandles; ///< Pointer to the array of task handles
-  MessageBufferHandle_t* msgBufferHandles; ///< Pointer to the array of message buffer handles
-  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
-  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
-                                 ///< proceed into its forever loop
-};
-
-/// Move Base Servos Task Parameters
-struct MoveBaseServoParams
-{
-  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
-                                         ///< receive move commands
-  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
-  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
-                                 ///< proceed into its forever loop
-};
-
-/// Plan Trajectory Task Parameters
-struct PlanTrajectoryParams
-{
-  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
-                                         ///< receive trajectory planning commands
-  MessageBufferHandle_t moveCmdBufferHandle; ///< Handle to the message buffer for this task to
-                                             ///< send move commands to the servos
-  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
-  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
-                                 ///< proceed into its forever loop
-};
-
-/// Control Camera Task Parameters
-struct ControlCameraParams
-{
-  WiFiUDP* cameraSender; ///< Pointer to the camera sender object
-  MessageBufferHandle_t msgBufferHandle; ///< Handle to the message buffer for this task to
-                                         ///< receive camera commands
-  Telemetry* telemetry; ///< Pointer to the telemetry object to collect data from
-  EventGroupHandle_t startEvent; ///< Handle to an event group which signals the task should
-                                 ///< proceed into its forever loop
-};
-
-/// Create all tasks needed for the lifetime of the telescope
-///
-/// @param[in] taskParams An array of pointers to the task parameters for each task.
-///                       Parameter pointers within the container may be nullptr
-/// @param[out] taskHandles An array of pointers to task handles generated by each
-///                         task create call
-///
-/// @return The result of creating the tasks. pdPASS if successful
-BaseType_t createTasks(void* taskParams[NUM_TASKS],
-                       TaskHandle_t taskHandles[NUM_TASKS]); 
-
-/// Periodically collect and report telemetry via the configured data interface
-///
-/// @param[in] params Holds a pointer to a CollectTelemetryParams object
-void taskCollectTelemetry(void* params);
-
-/// Receive commands from the configured command interface and execute them
-///
-/// @param[in] params Holds a pointer to a RecvCmdParams object
-void taskReceiveCommand(void* params);
-
-/// Move the vertical and horizontal servos to the specified positions
-///
-/// @param[in] params Holds a pointer to a MoveBaseParams object
-void taskMoveBaseServos(void* params);
-
-/// Plan a trajectory for the telescope to follow
-///
-/// @param[in] params Holds a pointer to a PlanTrajectoryParams object
-void taskPlanTrajectory(void* params);
-
-/// Control the camera and capture images
-///
-/// @param[in] params Holds a pointer to a ControlCameraParams object
-void taskControlCamera(void* params);
 
 #endif

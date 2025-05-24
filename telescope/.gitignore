@@ -3,6 +3,6 @@ managed_components/
 
 **/secrets.h
 sdkconfig.old
-dependencies.lock
+dependencies*.lock
 
 .vscode/settings.json

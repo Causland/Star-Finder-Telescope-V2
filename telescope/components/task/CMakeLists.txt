@@ -1,4 +1,4 @@
 idf_component_register(SRCS 
-                        "Tasks.cpp"
+                        "CustomTask.cpp"
                        INCLUDE_DIRS 
                         ".")
