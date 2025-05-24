@@ -1,9 +1,12 @@
 idf_component_register(SRCS 
-                        "CustomServo.cpp"
-                        "PIDController.cpp"
+                        CustomServo.cpp
+                        PIDController.cpp
                        INCLUDE_DIRS 
-                        "."
-                        "../esp32servo/ESP32Servo/src"
+                        .
                        REQUIRES
-                        "arduino"
-                        "esp32servo")
+# system components
+                        cxx
+                        log
+# local components
+                        arduino
+                        esp32servo)

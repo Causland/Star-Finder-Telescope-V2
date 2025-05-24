@@ -1,10 +1,10 @@
-#include "CustomTask.cpp"
+#include <esp_heap_caps.h>
 
-Tasks CustomTask::tasks{};
+#include "CustomTask.h"
 
 CustomTask::CustomTask(Telemetry& telemetry, const char* name, const int& coreID, 
                        const size_t& stackSize, const size_t& priority) :
-    cfg({stackSize, priority, false, name, coreID}) 
+    cfg({stackSize, priority, false, name, coreID, MALLOC_CAP_DEFAULT}) 
 {
 }
 

@@ -67,7 +67,7 @@ void PIDController::move()
                 integPortion,
                 derivPortion,
                 offset);
-  ESP_LOGD(pcTaskGetName(NULL), buf);
+  ESP_LOGD(pcTaskGetName(NULL), "%s", buf);
 
   servo->writeMicroseconds(servo->defaultUs + offset);
 

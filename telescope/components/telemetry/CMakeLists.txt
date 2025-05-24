@@ -1,7 +1,12 @@
 idf_component_register(SRCS 
-                        "Telemetry.cpp"
+                        Telemetry.cpp
                        INCLUDE_DIRS 
-                        "."
-                        "../serializer"
+                        .
                        REQUIRES
-                        "serializer")
+# system components
+                        cxx
+                        esp_timer
+                        freertos
+                        log
+# local components
+                        serializer)

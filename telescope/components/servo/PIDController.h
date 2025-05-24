@@ -22,7 +22,7 @@ public:
   {
     if (servo == nullptr) 
     {
-      ESP_LOGE("Servo cannot be null for PID controller");
+      ESP_LOGE(pcTaskGetName(NULL), "Servo cannot be null for PID controller");
       while (true) { ; }
     }
   }
@@ -44,6 +44,11 @@ public:
   double prevFilteredVel{0.0}; /// The previous filtered velocity of the servo.
 
 private:
+  ContinuousServo* servo; /// A pointer to the ContinousServo for position and control.
+
+  int settlingTimeSec{-1}; /// The duration in seconds in which to let the PID controller operate before stopping.
+                           /// Important for stopping drift of servo due to I.
+                           
   double K_P{0.0}; /// The proportional constant.
   double K_I{0.0}; /// The integration constant.
   double K_D{0.0}; /// The derivative constant.
@@ -53,11 +58,6 @@ private:
 
   unsigned long targetTimeMs{millis()}; /// Time of the last target update.
   double targetAngle{0.0}; /// The target angle in degrees.
-
-  int settlingTimeSec{-1}; /// The duration in seconds in which to let the PID controller operate before stopping.
-                           /// Important for stopping drift of servo due to I.
-
-  ContinuousServo* servo; /// A pointer to the ContinousServo for position and control.
 };
 
 #endif // __PID_CONTROLLER_H__

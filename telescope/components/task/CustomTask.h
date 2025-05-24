@@ -3,13 +3,13 @@
 
 #include <array>
 #include <condition_variable>
-#include <eps_log.h>
+#include <esp_log.h>
 #include <esp_pthread.h>
 #include <mutex>
 #include <queue>
 #include <thread>
 
-#include "Tasks.h"
+#include "Command.h"
 #include "Telemetry.h"
 
 class CustomTask
@@ -44,7 +44,7 @@ protected:
 
 private:
   std::thread thread;
-  esp_pthread_cfg cfg;
+  esp_pthread_cfg_t cfg;
 };
 
 #endif

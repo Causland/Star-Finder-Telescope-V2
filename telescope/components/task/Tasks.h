@@ -1,8 +1,11 @@
-#ifndef __TASK_H__
-#define __TASK_H__
+#ifndef __TASKS_H__
+#define __TASKS_H__
 
+#include <esp_heap_caps.h>
 #include <esp_log.h>
 #include <esp_pthread.h>
+
+#include "CustomTask.h"
 
 class Tasks
 {
@@ -20,17 +23,17 @@ public:
   };
 
   static constexpr esp_pthread_cfg_t collectTelemCfg
-                                      {4096, 2, false, "CollectTelem", 1};
+                                      {4096, 2, false, "CollectTelem", 1, MALLOC_CAP_DEFAULT};
   static constexpr esp_pthread_cfg_t receiveCommandCfg
-                                      {4096, 2, false, "ReceiveCommand", 1};
+                                      {4096, 2, false, "ReceiveCommand", 1, MALLOC_CAP_DEFAULT};
   static constexpr esp_pthread_cfg_t moveBaseServosCfg
-                                      {8192, 2, false, "MoveBaseServos", 1};
+                                      {8192, 2, false, "MoveBaseServos", 1, MALLOC_CAP_DEFAULT};
   static constexpr esp_pthread_cfg_t planTrajectoryCfg
-                                      {4096, 2, false, "PlanTrajectory", 1};
+                                      {4096, 2, false, "PlanTrajectory", 1, MALLOC_CAP_DEFAULT};
   static constexpr esp_pthread_cfg_t controlCameraCfg
-                                      {4096, 2, false, "ControlCamera", 1};
+                                      {4096, 2, false, "ControlCamera", 1, MALLOC_CAP_DEFAULT};
   static constexpr esp_pthread_cfg_t findPositionCfg
-                                      {4096, 2, false, "FindGPSPos", 1};
+                                      {4096, 2, false, "FindGPSPos", 1, MALLOC_CAP_DEFAULT};
 
   static bool setTask(CustomTask* const task, const TaskID& id)
   {
@@ -52,7 +55,7 @@ public:
     return tasks[id].lock();
   }
 
-  static startTasks()
+  static void startTasks()
   {
     for (auto* task : tasks)
     {
@@ -65,7 +68,7 @@ public:
     }
   }
 
-  static stopTasks()
+  static void stopTasks()
   {
     for (auto* task : tasks)
     {

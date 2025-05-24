@@ -1,6 +1,8 @@
 #include <esp_heap_caps.h>
 #include <esp_log.h>
 #include <esp_timer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 #include "Telemetry.h"
 
@@ -12,12 +14,10 @@
       ESP_LOGE(pcTaskGetName(NULL), "Telemetry field " #name " does not fit in buffer!"); \
       return -1;                                                                          \
     }                                                                                     \
-                                                                                          \
-    offset += sizeof(*name);                                                              \
   }                                                                                       \
   else                                                                                    \
   {                                                                                       \
-    ESP_LOGE("Telemetry field " #name " is not callable!");                               \
+    ESP_LOGE(pcTaskGetName(NULL), "Telemetry field " #name " is not callable!");          \
     return -1;                                                                            \
   }
 
@@ -28,13 +28,9 @@ Telemetry::Telemetry()
   registerTelemFieldFreeHeapCB(std::bind(heap_caps_get_total_size, MALLOC_CAP_DEFAULT));
 }
 
-int Telemetry::serializeTelemetry(uint8_t* buffer, const size_t& bufferSize)
+int Telemetry::serializeTelemetry()
 {
-  if (buffer == nullptr) return false;
-
   // Serialize each field into the buffer
-  size_t offset{0};
-
   SERIALIZE_FIELD(SystemTime);
   SERIALIZE_FIELD(FreeHeap);
 
@@ -55,5 +51,5 @@ int Telemetry::serializeTelemetry(uint8_t* buffer, const size_t& bufferSize)
   SERIALIZE_FIELD(TargetAz);
   SERIALIZE_FIELD(TargetEl);
 
-  return offset;
+  return getBytesWritten();
 }

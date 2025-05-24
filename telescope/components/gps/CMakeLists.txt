@@ -1,8 +1,11 @@
 idf_component_register(SRCS 
-                        "GPS.cpp"
+                        GPS.cpp
                        INCLUDE_DIRS 
-                        "."
-                        "../tinygpsplus/TinyGPSPlus/src"
+                        .
                        REQUIRES
-                        "arduino"
-                        "tinygpsplus")
+# system components
+                        cxx
+                        log
+# local components
+                        arduino
+                        tinygpsplus)

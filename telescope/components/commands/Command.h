@@ -3,11 +3,11 @@
 
 #include "Serializer.h"
 
-class Command : public Serializer<Command::MAX_CMD_SIZE>
+static constexpr std::size_t MAX_CMD_SIZE{128};
+
+class Command : public Serializer<MAX_CMD_SIZE>
 {
 public:
-  static constexpr std::size_t MAX_CMD_SIZE{128};
-
   enum CommandID
   {
     CMD_TELEM_RATE,

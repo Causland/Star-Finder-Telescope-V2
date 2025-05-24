@@ -14,12 +14,13 @@ public:                                                       \
 private:                                                      \
   std::function<type()> name##Func;
 
-class Telemetry : public Serializer<Telemetry::MAX_TELEM_LEN>
+
+static constexpr std::size_t MAX_TELEM_LEN{256};
+
+class Telemetry : public Serializer<MAX_TELEM_LEN>
 {
 public:
   Telemetry();
-
-  static constexpr std::size_t MAX_TELEM_LEN{256};
 
   /// Serialize the telemetry data into the telem buffer
   ///
