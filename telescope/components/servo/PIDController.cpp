@@ -1,4 +1,5 @@
 #include <ESP32Servo.h>
+#include <cstdio>
 
 #include "PIDController.h"
 
@@ -54,21 +55,19 @@ void PIDController::move()
   const double derivPortion{filteredVel * K_D};
   const int offset{static_cast<int>(propPortion + integPortion + derivPortion)};
 
-#ifdef DEBUG_PID
   static char buf[128]{};
-  static char str[16]{};
-  dtostrf(currUpdateMs / 1000.0, 0, 3, str); strncpy(buf, str, 15); strcat(buf, ", ");
-  itoa(servo->turns, str, 10);               strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(currAngle, 0, 3, str);             strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(filteredCurrAngle, 0, 3, str);     strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(targetAngle, 0, 3, str);           strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(error, 0, 3, str);                 strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(propPortion, 0, 3, str);           strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(integPortion, 0, 3, str);          strncat(buf, str, 15); strcat(buf, ", ");
-  dtostrf(derivPortion, 0, 3, str);          strncat(buf, str, 15); strcat(buf, ", ");
-  itoa(offset, str, 10);                     strncat(buf, str, 15);
-  DEBUG_PRINTLN("" + String(buf));
-#endif
+  std::snprintf(buf, sizeof(buf), "%.3f, %i, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f. %.3f, %i",
+                currUpdateMs / 1000.0,
+                servo->turns,
+                currAngle,
+                filteredCurrAngle,
+                targetAngle,
+                error,
+                propPortion,
+                integPortion,
+                derivPortion,
+                offset);
+  ESP_LOGD(pcTaskGetName(NULL), buf);
 
   servo->writeMicroseconds(servo->defaultUs + offset);
 

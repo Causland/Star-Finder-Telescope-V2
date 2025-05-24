@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "CustomServo.h"
 
 double CustomServo::measureDutyCycle(const int& pin, const int& periodUs, 

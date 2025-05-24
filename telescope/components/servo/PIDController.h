@@ -1,8 +1,9 @@
 #ifndef __PID_CONTROLLER_H__
 #define __PID_CONTROLLER_H__
 
+#include <esp_log.h>
+
 #include "CustomServo.h"
-#include "Utils.h"
 
 /// A basic implementation of a generic PID controller for a continuous servo.
 class PIDController
@@ -21,7 +22,7 @@ public:
   {
     if (servo == nullptr) 
     {
-      DEBUG_PRINTLN("ERROR - Servo cannot be null for PID controller");
+      ESP_LOGE("Servo cannot be null for PID controller");
       while (true) { ; }
     }
   }
