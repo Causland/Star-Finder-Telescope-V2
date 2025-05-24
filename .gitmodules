@@ -4,9 +4,6 @@
 [submodule "telescope/components/tinygpsplus"]
 	path = telescope/components/tinygpsplus
 	url = https://github.com/andyfinity/TinyGPSPlus-ESPIDF.git
-[submodule "telescope/components/esp32servo/ESP32Servo"]
-	path = telescope/components/esp32servo/ESP32Servo
-	url = https://github.com/madhephaestus/ESP32Servo.git
 [submodule "telescope/components/esp32camera"]
 	path = telescope/components/esp32camera
 	url = https://github.com/espressif/esp32-camera.git
