@@ -1,33 +1,37 @@
 #ifndef __TELEMETRY_H__
 #define __TELEMETRY_H__
 
-#define TELEM_FIELD(name, type)                    \
-public:                                            \
-  void registerTelemField##name(type* const field) \
-  {                                                \
-    if (field == nullptr) return;                  \
-    name = field;                                  \
-  }                                                \
-private:                                           \
-  type* name{nullptr};
+#include <functional>
 
-class Telemetry
+#include "Serializer.h"
+
+#define TELEM_FIELD(name, type)                               \
+public:                                                       \
+  void registerTelemField##name##CB(std::function<type()> cb) \
+  {                                                           \
+    name##Func = std::move(cb);                               \
+  }                                                           \
+private:                                                      \
+  std::function<type()> name##Func;
+
+class Telemetry : public Serializer<Telemetry::MAX_TELEM_LEN>
 {
 public:
-  /// Serialize the telemetry data into a buffer
-  /// The buffer must be large enough to hold all the telemetry data
+  Telemetry();
+
+  static constexpr std::size_t MAX_TELEM_LEN{256};
+
+  /// Serialize the telemetry data into the telem buffer
   ///
-  /// @param[in,out] buffer The buffer to hold the serialized data
-  /// @param[in] bufferSize The size of the buffer
   /// @return bytes serialized, -1 if buffer is too small
-  int serializeTelemetry(uint8_t* buffer, const size_t& bufferSize);
+  int serializeTelemetry();
 
   // General Info (Not from other tasks)
   // These fields are intentionally commented out to show they
   // will be serialized in this order
 
-  // TELEM_FIELD(SystemTime, unsigned long);
-  // TELEM_FIELD(FreeHeap, size_t);
+  TELEM_FIELD(SystemTime, unsigned long);
+  TELEM_FIELD(FreeHeap, size_t);
 
   // Command Info
   TELEM_FIELD(CmdsReceived, uint16_t);
