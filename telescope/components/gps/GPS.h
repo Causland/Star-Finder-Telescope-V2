@@ -5,17 +5,18 @@
 
 #include "secrets.h"
 
-struct GPS
+class GPS
 {
-  GPS() = default;
+public:
+  GPS();
 
-  /// Initialize the GPS module serial port
-  ///
-  /// @return true if the GPS module was initialized successfully, false otherwise
-  bool init();
+  GPS(const GPS&) = delete;
+  GPS(GPS&&) = delete;
 
-  /// Deinitialize the GPS module serial port
-  void deinit();
+  ~GPS();
+
+  GPS& operator=(const GPS&) = delete;
+  GPS& operator=(GPS&&) = delete;
 
   /// Update the GPS data
   ///
@@ -26,6 +27,7 @@ struct GPS
   float gpsLon{DEFAULT_GPS_LON};
   float gpsAlt{DEFAULT_GPS_ALT};
 
+private:
   TinyGPSPlus gps; ///< GPS object to read data from the GPS module
 };
 

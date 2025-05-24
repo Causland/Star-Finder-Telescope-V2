@@ -14,9 +14,6 @@ TaskReceiveCommand receiveCmd{telemetry, Tasks::receiveCommandCfg};
 
 extern "C" void app_main()
 {
-  DEBUG_INIT;
-  DEBUG_ENTER("app_main()");
-
   // Create each task and populate shared Tasks object, then provide to each
   Tasks::setTask(&collectTelem, Tasks::TASK_COLLECT_TELEMETRY);
   Tasks::setTask(&controlCam, Tasks::TASK_CONTROL_CAMERA);
@@ -27,6 +24,4 @@ extern "C" void app_main()
 
   // Start all tasks
   Tasks::startTasks();
-
-  DEBUG_EXIT("app_main()");
 }
