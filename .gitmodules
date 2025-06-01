@@ -4,3 +4,9 @@
 [submodule "telescope/components/esp32camera"]
 	path = telescope/components/esp32camera
 	url = https://github.com/espressif/esp32-camera.git
+[submodule "telescope/components/arduino"]
+	path = telescope/components/arduino
+	url = https://github.com/espressif/arduino-esp32.git
+[submodule "telescope/components/esp32servo/ESP32Servo"]
+	path = telescope/components/esp32servo/ESP32Servo
+	url = https://github.com/Causland/ESP32Servo.git
