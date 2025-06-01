@@ -12,5 +12,9 @@
     "IDF_TARGET": "esp32"
   },
   "idf.espIdfPath": "/opt/esp/idf",
-  "idf.toolsPath": "/opt/esp"
+  "idf.toolsPath": "/opt/esp",
+  "files.associations": {
+    "esp_intr_alloc.h": "c",
+    "uart_types.h": "c"
+  }
 }
