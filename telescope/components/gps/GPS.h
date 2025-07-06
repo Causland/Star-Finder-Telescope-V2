@@ -3,7 +3,7 @@
 
 #include <TinyGPS++.h>
 
-#include "secrets.h"
+#include "gps_secrets.h"
 
 class GPS
 {

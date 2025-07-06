@@ -1,16 +1,33 @@
 #include "Commands.h"
-#include "Tasks.h"
-#include "Telemetry.h"
-#include "Utils.h"
+#include "TaskCollectTelemetry.h"
 
 // Statically allocate a buffer to hold the telemetry data
 uint8_t telemBuffer[sizeof(Telemetry) * 2]{0};
 uint16_t telemRate{250}; ///< Telemetry rate in milliseconds
 
+void threadLoop()
+{
+  while (!exitFlag)
+  {
+    // Wait for a telemetry rate command or exit signal
+    std::unique_lock<std::mutex> lk(cmdMutex);
+    cv.wait(lk, [this] { return !cmdQueue.empty() || exitFlag; });
+
+    if (exitFlag) break;
+
+    // Get the command from the queue
+    Command cmd = std::move(cmdQueue.front());
+    cmdQueue.pop();
+    lk.unlock();
+
+    // Process the command
+
+    
+  }
+}
+
 void taskCollectTelemetry(void* params)
 {
-  DEBUG_ENTER("taskCollectTelemetry()");
-
   CollectTelemetryParams* telemParams = static_cast<CollectTelemetryParams*>(params);
   WiFiUDP* telemSender = telemParams->telemSender;
   MessageBufferHandle_t msgBufferHandle = telemParams->msgBufferHandle;

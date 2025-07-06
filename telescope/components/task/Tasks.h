@@ -35,51 +35,10 @@ public:
   static constexpr esp_pthread_cfg_t findPositionCfg
                                       {4096, 2, false, "FindGPSPos", 1, MALLOC_CAP_DEFAULT};
 
-  static bool setTask(CustomTask* const task, const TaskID& id)
-  {
-    if (id >= NUM_TASKS)
-    {
-      return false;
-    }
-
-    tasks[id] = task;
-  }
-
-  static CustomTask* getTask(const TaskID& id)
-  {
-    if (id >= NUM_TASKS)
-    {
-      return nullptr;
-    }
-
-    return tasks[id].lock();
-  }
-
-  static void startTasks()
-  {
-    for (auto* task : tasks)
-    {
-      if (!task)
-      {
-        ESP_LOGE(pcTaskGetName(NULL), "Task is a nullptr during start");
-        continue;
-      }
-      task->start();
-    }
-  }
-
-  static void stopTasks()
-  {
-    for (auto* task : tasks)
-    {
-      if (!task)
-      {
-        ESP_LOGE(pcTaskGetName(NULL), "Task is a nullptr during stop");
-        continue;
-      }
-      tasks.stop();
-    }
-  }
+  static bool setTask(CustomTask* const task, const TaskID& id);
+  static CustomTask* getTask(const TaskID& id);
+  static void startTasks();
+  static void stopTasks();
 
 private:
   static std::array<CustomTask*, NUM_TASKS> tasks;

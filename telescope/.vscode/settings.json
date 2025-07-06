@@ -15,6 +15,8 @@
   "idf.toolsPath": "/opt/esp",
   "files.associations": {
     "esp_intr_alloc.h": "c",
-    "uart_types.h": "c"
-  }
+    "uart_types.h": "c",
+    "cstdint": "cpp"
+  },
+  "idf.port": "/dev/ttyUSB0"
 }

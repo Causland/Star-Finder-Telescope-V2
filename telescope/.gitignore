@@ -2,6 +2,8 @@ build/
 managed_components/
 
 **/secrets.h
+**/wifi_secrets.h
+**/gps_secrets.h
 sdkconfig.old
 dependencies*.lock
 

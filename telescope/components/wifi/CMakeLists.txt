@@ -1,8 +1,11 @@
-#idf_component_register(SRCS 
-#                        WiFiWrapper.cpp
-#                       INCLUDE_DIRS 
-#                        .
-#                       REQUIRES
+idf_component_register(SRCS 
+                        UDPReceiver.cpp
+                        UDPSender.cpp
+                        WifiInitializer.cpp
+                       INCLUDE_DIRS 
+                        .
+                       REQUIRES
 # system components
-#                        cxx
-#                        log)
+                        cxx
+                        log
+                        esp_wifi)
