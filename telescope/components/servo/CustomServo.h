@@ -3,13 +3,11 @@
 
 #include <ESP32Servo.h>
 
-/*!
- * Servo wrapper class to provide some default properties and state to servos.
- */ 
+
+/// Servo wrapper class to provide some default properties and state to servos. 
 class CustomServo
 {
 public:
-
   /// Create a CustomServo with a dedicated output pin and uS range.
   /// @param[in] pinNum the physical pin number.
   /// @param[in] defaultUs the default microseconds for the servo.
@@ -19,6 +17,9 @@ public:
               const uint16_t minUs, const uint16_t maxUs) :
                 pinNum(pinNum), defaultUs(defaultUs), minUs(minUs), maxUs(maxUs) {}
 
+  CustomServo(const CustomServo&) = delete;
+  CustomServo(CustomServo&&) = delete;
+
   /// Initializes the default state of the servo and attaches to the underlying resource
   void init()
   {
@@ -27,9 +28,8 @@ public:
   }
 
   virtual ~CustomServo() = default;
-  CustomServo(const CustomServo&) = delete;
+
   CustomServo& operator=(const CustomServo&) = delete;
-  CustomServo(CustomServo&&) = delete;
   CustomServo& operator=(CustomServo&&) = delete;
 
   /// Wrapper function to write a certain microsecond value to the servo object.
@@ -43,8 +43,8 @@ public:
   /// @return the position of the servo in degrees.
   virtual double measurePosition() = 0;
 
-  double getCurrPos() { return currAngle; }
-  double getPrevPos() { return prevAngle; }
+  double getCurrPos() const { return currAngle; }
+  double getPrevPos() const { return prevAngle; }
 
   uint8_t pinNum{0}; /// The physical pin number.
 
@@ -89,11 +89,13 @@ public:
   {
     pinMode(feedbackPinNum, INPUT);
   }
+  
+  ContinuousServo(const ContinuousServo&) = delete;
+  ContinuousServo(ContinuousServo&&) = delete;
 
   ~ContinuousServo() override = default;
-  ContinuousServo(const ContinuousServo&) = delete;
+
   ContinuousServo& operator=(const ContinuousServo&) = delete;
-  ContinuousServo(ContinuousServo&&) = delete;
   ContinuousServo& operator=(ContinuousServo&&) = delete;
 
   /// Stop rotation by setting to default microseconds.
@@ -102,7 +104,7 @@ public:
   /// Get the true measured angle 0-360 degrees of the sensor. This value is not
   /// adjusted for the number of turns.
   /// @return the measured angle from 0-360 degrees.
-  double getMeasuredAngle() { return currMeasuredAngle; }
+  double getMeasuredAngle() const { return currMeasuredAngle; }
 
   uint16_t minSpeedOffsetUs{0}; /// Microsecond offset to cause rotation of servo.
   uint16_t maxSpeedOffsetUs{UINT16_MAX}; /// Microsecond offset to rotate servo at max speed.
@@ -142,10 +144,12 @@ public:
                                      minSpeedOffsetUs, maxSpeedOffsetUs, 
                                      maxSpeedDps, feedbackPinNum) {}
   
-  ~Parallax360Servo() override = default;
   Parallax360Servo(const Parallax360Servo&) = delete;
-  Parallax360Servo& operator=(const Parallax360Servo&) = delete;
   Parallax360Servo(Parallax360Servo&&) = delete;
+
+  ~Parallax360Servo() override = default;
+
+  Parallax360Servo& operator=(const Parallax360Servo&) = delete;
   Parallax360Servo& operator=(Parallax360Servo&&) = delete;
 
   /// Measure the position of the servo and adjust on turn count
@@ -169,10 +173,12 @@ public:
                   const double& rangeDeg) : CustomServo(pinNum, defaultUs, minUs, maxUs),
                     rangeDeg(rangeDeg), usPerDeg(rangeDeg > 0.0 ? (maxUs - minUs) / rangeDeg : 0.0) {}
   
-  ~PositionalServo() override = default;
   PositionalServo(const PositionalServo&) = delete;
-  PositionalServo& operator=(const PositionalServo&) = delete;
   PositionalServo(PositionalServo&&) = delete;
+
+  ~PositionalServo() override = default;
+  
+  PositionalServo& operator=(const PositionalServo&) = delete;
   PositionalServo& operator=(PositionalServo&&) = delete;
 
   /// Stop the servo by writing the current position

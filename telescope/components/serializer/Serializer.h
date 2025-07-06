@@ -4,16 +4,30 @@
 #include <array>
 #include <cstdint>
 
+/// The Serializer class provides a simple abstraction for a serializable
+/// object that can be serialized and deserialized to/from a buffer.
+/// It uses a fixed-size buffer and supports serialization of any object via memcpy.
 template <std::size_t BUF_SIZE>
 class Serializer
 {
 public:
+  /// Serialize the object into the buffer and byte swaps into network byte order.
+  ///
+  /// @param[in] obj The object to serialize
+  ///
+  /// @return true if serialization was successful, false if buffer does not have enough space
   template <typename T>
   bool serialize(const T& obj);
 
+  /// Deserialize the object from the buffer and byte swaps from network byte order.
+  ///
+  /// @param[out] obj The object to deserialize into
+  ///
+  /// @return true if deserialization was successful, false if buffer does not have enough data
   template <typename T>
   bool deserialize(T* obj);
 
+  /// Reset the serializer's internal state, clearing the write and read offsets.
   void reset() 
   {
     writeOff = 0;
@@ -24,9 +38,9 @@ public:
   std::size_t getBytesRead() const { return readOff; }
 
 private:
-  std::array<uint8_t, BUF_SIZE> buffer;
-  std::size_t writeOff{0};
-  std::size_t readOff{0}; 
+  std::array<uint8_t, BUF_SIZE> buffer; ///< Fixed-size buffer for serialization
+  std::size_t writeOff{0}; ///< Offset for writing to the buffer
+  std::size_t readOff{0}; ///< Offset for reading from the buffer
 };
 
 template <std::size_t BUF_SIZE>

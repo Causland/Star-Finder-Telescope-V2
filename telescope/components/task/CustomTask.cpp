@@ -1,4 +1,5 @@
 #include <esp_heap_caps.h>
+#include <esp_log.h>
 
 #include "CustomTask.h"
 
@@ -21,6 +22,9 @@ CustomTask::~CustomTask()
 
 void CustomTask::start()
 {
+    ESP_LOGD(cfg.thread_name, "Starting task on core %d with stack size %zu and priority %zu",
+             cfg.pin_to_core, cfg.stack_size, cfg.prio);
+
     if (thread.joinable())
     {
         stop();
@@ -34,6 +38,8 @@ void CustomTask::start()
 
 void CustomTask::stop()
 {
+    ESP_LOGD(cfg.thread_name, "Stopping task");
+
     {
         std::scoped_lock lk{cmdMutex};
         exitFlag = true;

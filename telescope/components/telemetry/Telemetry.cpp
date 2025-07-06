@@ -6,19 +6,24 @@
 
 #include "Telemetry.h"
 
-#define SERIALIZE_FIELD(name)                                                             \
-  if (name##Func)                                                                         \
-  {                                                                                       \
-    if (!serialize(name##Func()))                                                         \
-    {                                                                                     \
-      ESP_LOGE(pcTaskGetName(NULL), "Telemetry field " #name " does not fit in buffer!"); \
-      return -1;                                                                          \
-    }                                                                                     \
-  }                                                                                       \
-  else                                                                                    \
-  {                                                                                       \
-    ESP_LOGE(pcTaskGetName(NULL), "Telemetry field " #name " is not callable!");          \
-    return -1;                                                                            \
+#define SERIALIZE_FIELD(name)                                                \
+  if (name##Func)                                                            \
+  {                                                                          \
+    if (!serialize(name##Func()))                                            \
+    {                                                                        \
+      ESP_LOGE(TAG, "Telemetry field " #name " does not fit in buffer!");    \
+      return -1;                                                             \
+    }                                                                        \
+  }                                                                          \
+  else                                                                       \
+  {                                                                          \
+    ESP_LOGW(TAG, "Telemetry field " #name " has no registered callback");   \
+    decltype(name##Func)::result_type dummy;                                 \
+    if (!serialize(dummy))                                                   \
+    {                                                                        \
+      ESP_LOGE(TAG, "Telemetry field " #name " does not fit in buffer!");    \
+      return -1;                                                             \
+    }                                                                        \
   }
 
 Telemetry::Telemetry()

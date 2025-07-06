@@ -3,7 +3,6 @@
 
 #include <cstdint>
 
-// Define network constants
 static constexpr const char* WIFI_GATEWAY_ADDR{"192.168.4.1"};
 static constexpr const char* WIFI_TELESCOPE_ADDR{"192.168.4.1"};
 static constexpr const char* WIFI_USER_ADDR{"192.168.4.2"};

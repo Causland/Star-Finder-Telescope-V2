@@ -6,23 +6,33 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
+/// UDPSender handles sending UDP packets to a specified destination address and port.
 class UDPSender
 {
 public:
-    UDPSender(const std::string& name, const std::string& destAddr, const uint16_t& destPort);
-    ~UDPSender();
+  /// Constructs a UDPSender object with the specified name, destination address, and port.
+  ///
+  /// @param[in] name The name of the sender, used for logging.
+  /// @param[in] destAddr The destination address to send packets to.
+  /// @param[in] destPort The destination port to send packets to.
+  UDPSender(const std::string& name, const std::string& destAddr, const uint16_t& destPort);
 
-    UDPSender(const UDPSender&) = delete;
-    UDPSender(UDPSender&&) = delete;
-    UDPSender& operator=(const UDPSender&) = delete;
-    UDPSender& operator=(UDPSender&&) = delete;
+  UDPSender(const UDPSender&) = delete;
+  UDPSender(UDPSender&&) = delete;
 
-    bool send(const uint8_t* data, const size_t& size);
+  /// Destructor that closes the socket if it is open.
+  ~UDPSender();
+
+  UDPSender& operator=(const UDPSender&) = delete;
+  UDPSender& operator=(UDPSender&&) = delete;
+
+  /// Send data to the destination specified during construction.
+  bool send(const uint8_t* data, const size_t& size) const;
 
 private:
-    std::string name;
-    struct sockaddr_in sockAddr;
-    int sockfd{-1}; ///< Socket file descriptor
+  std::string name; ///< Name of the sender, used for logging
+  struct sockaddr_in sockAddr; ///< Socket address structure for sending data
+  int sockfd{-1}; ///< Socket file descriptor
 };
 
 #endif
