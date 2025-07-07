@@ -2,6 +2,8 @@
 #include "Tasks.h"
 #include "Utils.h"
 
+static constexpr uint8_t MAX_TRAJECTORY_PARTS{4}; ///< Max number of parts in a trajectory
+
 // File local variables
 uint8_t lastSeqNumReceived{0};
 TrajectoryPart_t trajectoryPart{0, 0, 0, {{0.0, 0.0, 0.0}}};

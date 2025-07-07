@@ -3,14 +3,13 @@
 
 #include "CustomTask.h"
 
-CustomTask::CustomTask(Telemetry& telemetry, const char* name, const int& coreID, 
+CustomTask::CustomTask(const char* name, const int& coreID, 
                        const size_t& stackSize, const size_t& priority) :
     cfg({stackSize, priority, false, name, coreID, MALLOC_CAP_DEFAULT}) 
 {
 }
 
-CustomTask::CustomTask(Telemetry& telemetry,
-                       const esp_pthread_cfg_t& threadConfig) :
+CustomTask::CustomTask(const esp_pthread_cfg_t& threadConfig) :
     cfg(threadConfig) 
 {
 }

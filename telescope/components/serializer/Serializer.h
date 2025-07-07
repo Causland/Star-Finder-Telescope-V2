@@ -34,6 +34,14 @@ public:
     readOff = 0;
   }
 
+  /// Set the underlying buffer. Useful for deserializing from a byte stream.
+  void setBuffer(std::array<uint8_t, BUF_SIZE>&& buf)
+  {
+    buffer = std::move(buf);
+    reset();
+  }
+
+  const std::array<uint8_t, BUF_SIZE>& getBuffer() const { return buffer; }
   std::size_t getBytesWritten() const { return writeOff; }
   std::size_t getBytesRead() const { return readOff; }
 
@@ -54,7 +62,7 @@ bool Serializer<BUF_SIZE>::serialize(const T& obj)
 
   // Convert to network byte order
   const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&obj);
-  for (size_t i = 0; i < sizeof(T); ++i)
+  for (std::size_t i = 0; i < sizeof(T); ++i)
   {
     buffer[i + writeOff] = ptr[sizeof(T) - 1 - i];
   }
@@ -73,7 +81,7 @@ bool Serializer<BUF_SIZE>::deserialize(T* obj)
 
   // Convert from network byte order
   const uint8_t* ptr = reinterpret_cast<const uint8_t*>(buffer);
-  for (size_t i = 0; i < sizeof(T); ++i)
+  for (std::size_t i = 0; i < sizeof(T); ++i)
   {
       ((uint8_t*)obj)[sizeof(T) - 1 - i] = ptr[i + readOff];
   }

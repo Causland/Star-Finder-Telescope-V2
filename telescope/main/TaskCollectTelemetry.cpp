@@ -1,82 +1,71 @@
-#include "Commands.h"
 #include "TaskCollectTelemetry.h"
-
-// Statically allocate a buffer to hold the telemetry data
-uint8_t telemBuffer[sizeof(Telemetry) * 2]{0};
-uint16_t telemRate{250}; ///< Telemetry rate in milliseconds
+#include "TelemetryRateCmd.h"
 
 void threadLoop()
 {
   while (!exitFlag)
   {
-    // Wait for a telemetry rate command or exit signal
+    // Wait for a telemetry timeout, command, or exit signal
     std::unique_lock<std::mutex> lk(cmdMutex);
-    cv.wait(lk, [this] { return !cmdQueue.empty() || exitFlag; });
-
-    if (exitFlag) break;
-
-    // Get the command from the queue
-    Command cmd = std::move(cmdQueue.front());
-    cmdQueue.pop();
-    lk.unlock();
-
-    // Process the command
-
-    
-  }
-}
-
-void taskCollectTelemetry(void* params)
-{
-  CollectTelemetryParams* telemParams = static_cast<CollectTelemetryParams*>(params);
-  WiFiUDP* telemSender = telemParams->telemSender;
-  MessageBufferHandle_t msgBufferHandle = telemParams->msgBufferHandle;
-  Telemetry* telemetry = telemParams->telemetry;
-  EventGroupHandle_t startEvent = telemParams->startEvent;
-
-  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
-
-  FOREVER
-  {
-    DEBUG_HEARTBEAT("CollectTelemetry");
-
-    // Check if there is a new telemetry rate command in the message buffer
-    size_t bytesRead = xMessageBufferReceive(msgBufferHandle, telemBuffer, sizeof(telemBuffer), 0);
-    if (bytesRead > 0)
+    const bool cond = cv.wait_for(lk, telemRate,
+                                  [this](){ return !cmdQueue.empty() || exitFlag; });
+    if (!cond)
     {
-      // Deserialize the telemetry rate command
-      TelemetryRateCmd_t* cmd = reinterpret_cast<TelemetryRateCmd_t*>(telemBuffer);
-      DEBUG_TELEMETRY_PRINT("Telemetry rate command received: " + 
-                            String(cmd->rate) + " ms");
+      lk.unlock();
 
-      // Check if the command is valid
-      if (cmd->rate < MIN_TELEM_RATE_MS)
+      // Telemetry timeout occured. Collect telemetry data and send
+      const auto bytes{telemetry.serializeTelemetry()};
+      if (bytes < 0)
       {
-        DEBUG_PRINTLN("ERROR - Telemetry rate command is invalid: " + String(cmd->rate) + " ms"
-                      ". Setting to minimum: " + String(MIN_TELEM_RATE_MS) + " ms");
-        cmd->rate = MIN_TELEM_RATE_MS;
+        ESP_LOGE(cfg.thread_name, "Failed to serialize telemetry data!");
+        continue;
       }
 
-      telemRate = cmd->rate;
-    }
-
-    // Report the telemetry data
-    DEBUG_TELEMETRY_PRINT("Collecting telemetry data...");
-    int bytesSerialized = telemetry->serializeTelemetry(telemBuffer, sizeof(telemBuffer));
-    if (bytesSerialized > 0)
-    {
-      // Send the telemetry data to the UDP sender
-      telemSender->beginPacket(WIFI_USER_ADDR, WIFI_TELEM_PORT);
-      telemSender->write(telemBuffer, bytesSerialized);
-      telemSender->endPacket();
+      if (!telemSender.send(telemetry.getBuffer().data(), bytes))
+      {
+        ESP_LOGE(cfg.thread_name, "Failed to send telemetry data!");
+        continue;
+      }
     }
     else
     {
-      DEBUG_PRINTLN("ERROR - Failed to serialize telemetry data!");
+      // The condition was met, either a command was received or we are exiting
+      if (exitFlag) break;
+
+      if (cmdQueue.empty()) continue;
+
+      // Get the command from the queue
+      Command cmd = std::move(cmdQueue.front());
+      cmdQueue.pop();
+      lk.unlock();
+
+      // Deserialize command
+      if (cmd.id == CommandID::CMD_TELEM_RATE)
+      {
+        // Should be deserialized already from receive command task
+        TelemRateCmd& telemRateCmd = static_cast<TelemRateCmd&>(cmd);
+        {
+          // Update the telemetry rate
+          if (telemRateCmd.rate < MIN_TELEM_RATE_MS)
+          {
+            ESP_LOGW(cfg.thread_name, "Telemetry rate command is invalid: %d ms. "
+                                      "Setting to minimum: %d ms",
+                                      telemRateCmd.rate, MIN_TELEM_RATE_MS);
+            telemRateCmd.rate = MIN_TELEM_RATE_MS;
+          }
+
+          telemRate = std::chrono::milliseconds(telemRateCmd.rate);
+          ESP_LOGI(cfg.thread_name, "Telemetry rate updated to: %d ms", telemRateCmd.rate);
+        }
+        else
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to deserialize telemetry rate command!");
+        }
+      }
+      else
+      {
+        ESP_LOGW(cfg.thread_name, "Received unsupported command type: %d", static_cast<int>(cmd.type));
+      }
     }
-
-    vTaskDelay(telemRate * portTICK_PERIOD_MS);
   }
-
-  DEBUG_EXIT("taskCollectTelemetry()");
 }
