@@ -1,26 +1,35 @@
 #include "ControlCameraCmd.h"
+#include "Serialization.h"
 
 ControlCameraCmd::ControlCameraCmd() : Command(CommandID::CMD_CONTROL_CAMERA)
 {
 
 }
 
-bool ControlCameraCmd::serializeCommand()
+bool ControlCameraCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
 {
+  std::size_t bytesWritten{0};
+
   // Serialize the command ID
-  if (!serialize(static_cast<uint8_t>(id))) return false;
+  auto result{Utils::serialize(buf, size, id)};
+  if (result < 0) return false;
+  bytesWritten += result;
 
   // Serialize the control camera command ID
-  if (!serialize(ctrlCmdID)) return false;
+  result = Utils::serialize(buf + bytesWritten, size - bytesWritten, ctrlCmdID);
+  if (result < 0) return false;
+  bytesWritten += result;
 
   // Serialize the config or video data
   switch (ctrlCmdID)
   {
     case CTRL_CAM_CONFIG:
-      if (!serialize(cfg)) return false;
+      result = Utils::serialize(buf + bytesWritten, size - bytesWritten, cfg);
+      if (result < 0) return false;
       break;
     case CTRL_CAM_VIDEO:
-      if (!serialize(vid)) return false;
+      result = Utils::serialize(buf + bytesWritten, size - bytesWritten, vid);
+      if (result < 0) return false;
       break;
     default:
       // Unsupported command ID
@@ -30,22 +39,30 @@ bool ControlCameraCmd::serializeCommand()
   return true;
 }
 
-bool ControlCameraCmd::deserializeCommand()
+bool ControlCameraCmd::deserializeCommand(const uint8_t* buf, const std::size_t& size)
 {
+  std::size_t bytesRead{0};
+
   // Deserialize the command ID
-  if (!deserialize(static_cast<uint8_t>(id))) return false;
+  auto result{Utils::deserialize(buf, size, &id)};
+  if (result < 0) return false;
+  bytesRead += result;
 
   // Deserialize the control camera command ID
-  if (!deserialize(ctrlCmdID)) return false;
+  result = Utils::deserialize(buf + bytesRead, size - bytesRead, &ctrlCmdID);
+  if (result < 0) return false;
+  bytesRead += result;
 
   // Deserialize the config or video data
   switch (ctrlCmdID)
   {
     case CTRL_CAM_CONFIG:
-      if (!deserialize(cfg)) return false;
+      result = Utils::deserialize(buf + bytesRead, size - bytesRead, &cfg);
+      if (result < 0) return false;
       break;
     case CTRL_CAM_VIDEO:
-      if (!deserialize(vid)) return false;
+      result = Utils::deserialize(buf + bytesRead, size - bytesRead, &vid);
+      if (result < 0) return false;
       break;
     default:
       // Unsupported command ID

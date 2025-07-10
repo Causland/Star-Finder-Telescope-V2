@@ -9,4 +9,4 @@ idf_component_register(SRCS
 # system components
                         cxx
 # local components
-                        serializer)
+                        utils)

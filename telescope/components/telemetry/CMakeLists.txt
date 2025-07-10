@@ -9,4 +9,4 @@ idf_component_register(SRCS
                         freertos
                         log
 # local components
-                        serializer)
+                        utils)

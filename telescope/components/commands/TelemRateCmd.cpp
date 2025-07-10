@@ -1,3 +1,4 @@
+#include "Serialization.h"
 #include "TelemRateCmd.h"
 
 TelemRateCmd::TelemRateCmd() : Command(CommandID::CMD_TELEM_RATE)
@@ -11,24 +12,36 @@ TelemRateCmd::TelemRateCmd(const uint16_t rate)
 
 }
 
-bool TelemRateCmd::serializeCommand()
+bool TelemRateCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
 {
+  std::size_t bytesWritten{0};
+
   // Serialize the command ID
-  if (!serialize(static_cast<uint8_t>(id))) return false;
+  auto result{Utils::serialize(buf, size, id)};
+  if (result < 0) return false;
+  bytesWritten += result;
 
   // Serialize the telemetry rate
-  if (!serialize(rate)) return false;
+  result = Utils::serialize(buf + bytesWritten,
+                            size - bytesWritten,
+                            rate);
+  if (result < 0) return false;
 
   return true;
 }
 
-bool TelemRateCmd::deserializeCommand()
+bool TelemRateCmd::deserializeCommand(const uint8_t* buf, const std::size_t& size)
 {
+  std::size_t bytesRead{0};
+
   // Deserialize the command ID
-  if (!deserialize(static_cast<uint8_t>(id))) return false;
+  auto result{Utils::deserialize(buf, size, &id)};
+  if (result < 0) return false;
+  bytesRead += result;
 
   // Deserialize the telemetry rate
-  if (!deserialize(rate)) return false;
+  result = Utils::deserialize(buf + bytesRead, size - bytesRead, &rate);
+  if (result < 0) return false;
 
   return true;
 }

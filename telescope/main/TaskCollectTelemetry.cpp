@@ -1,7 +1,10 @@
-#include "TaskCollectTelemetry.h"
-#include "TelemetryRateCmd.h"
+#include <esp_log.h>
 
-void threadLoop()
+#include <Command.h>
+#include "TaskCollectTelemetry.h"
+#include "TelemRateCmd.h"
+
+void TaskCollectTelemetry::threadLoop()
 {
   while (!exitFlag)
   {
@@ -35,36 +38,35 @@ void threadLoop()
       if (cmdQueue.empty()) continue;
 
       // Get the command from the queue
-      Command cmd = std::move(cmdQueue.front());
+      auto cmd = std::move(cmdQueue.front());
       cmdQueue.pop();
       lk.unlock();
 
-      // Deserialize command
-      if (cmd.id == CommandID::CMD_TELEM_RATE)
+      if (!cmd)
       {
-        // Should be deserialized already from receive command task
-        TelemRateCmd& telemRateCmd = static_cast<TelemRateCmd&>(cmd);
-        {
-          // Update the telemetry rate
-          if (telemRateCmd.rate < MIN_TELEM_RATE_MS)
-          {
-            ESP_LOGW(cfg.thread_name, "Telemetry rate command is invalid: %d ms. "
-                                      "Setting to minimum: %d ms",
-                                      telemRateCmd.rate, MIN_TELEM_RATE_MS);
-            telemRateCmd.rate = MIN_TELEM_RATE_MS;
-          }
+        ESP_LOGE(cfg.thread_name, "Received null command!");
+        continue;
+      }
 
-          telemRate = std::chrono::milliseconds(telemRateCmd.rate);
-          ESP_LOGI(cfg.thread_name, "Telemetry rate updated to: %d ms", telemRateCmd.rate);
-        }
-        else
+      // Deserialize command
+      if (cmd->id == Command::CMD_TELEM_RATE)
+      {
+        auto telemRateCmd = static_pointer_cast<TelemRateCmd>(cmd);
+        // Update the telemetry rate
+        if (telemRateCmd->rate < MIN_TELEM_RATE_MS)
         {
-          ESP_LOGE(cfg.thread_name, "Failed to deserialize telemetry rate command!");
+          ESP_LOGW(cfg.thread_name, "Telemetry rate command is invalid: %d ms. "
+                                    "Setting to minimum: %d ms",
+                                    telemRateCmd->rate, MIN_TELEM_RATE_MS);
+          telemRateCmd->rate = MIN_TELEM_RATE_MS;
         }
+
+        telemRate = std::chrono::milliseconds(telemRateCmd->rate);
+        ESP_LOGI(cfg.thread_name, "Telemetry rate updated to: %d ms", telemRateCmd->rate);
       }
       else
       {
-        ESP_LOGW(cfg.thread_name, "Received unsupported command type: %d", static_cast<int>(cmd.type));
+        ESP_LOGW(cfg.thread_name, "Received unsupported command type: %d", static_cast<int>(cmd->id));
       }
     }
   }

@@ -1,4 +1,5 @@
 #include "MoveServoCmd.h"
+#include "Serialization.h"
 
 MoveServoCmd::MoveServoCmd() : Command(CommandID::CMD_MOVE_SERVO)
 {
@@ -12,30 +13,44 @@ MoveServoCmd::MoveServoCmd(const float& az, const float& el)
 
 }
 
-bool MoveServoCmd::serializeCommand()
+bool MoveServoCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
 {
+  std::size_t bytesWritten{0};
+
   // Serialize the command ID
-  if (!serialize(static_cast<uint8_t>(id))) return false;
+  auto result{Utils::serialize(buf, size, id)};
+  if (result < 0) return false;
+  bytesWritten += result;
 
   // Serialize the az
-  if (!serialize(az)) return false;
+  result = Utils::serialize(buf + bytesWritten, size - bytesWritten, az);
+  if (result < 0) return false;
+  bytesWritten += result;
 
   // Serialize the el
-  if (!serialize(el)) return false;
+  result = Utils::serialize(buf + bytesWritten, size - bytesWritten, el);
+  if (result < 0) return false;
 
   return true;
 }
 
-bool MoveServoCmd::deserializeCommand()
+bool MoveServoCmd::deserializeCommand(const uint8_t* buf, const std::size_t& size)
 {
+  std::size_t bytesRead{0};
+
   // Deserialize the command ID
-  if (!deserialize(static_cast<uint8_t>(id))) return false;
+  auto result{Utils::deserialize(buf, size, &id)};
+  if (result < 0) return false;
+  bytesRead += result;
 
   // Deserialize the az
-  if (!deserialize(az)) return false;
+  result = Utils::deserialize(buf + bytesRead, size - bytesRead, &az);
+  if (result < 0) return false;
+  bytesRead += result;
 
   // Deserialize the el
-  if (!deserialize(el)) return false;
+  result = Utils::deserialize(buf + bytesRead, size - bytesRead, &el);
+  if (result < 0) return false;
 
   return true;
 }

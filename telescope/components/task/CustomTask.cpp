@@ -51,9 +51,9 @@ void CustomTask::stop()
     }
 }
 
-void CustomTask::pushCmd(Command&& cmd)
+void CustomTask::pushCmd(std::shared_ptr<Command>&& cmd)
 {
     std::scoped_lock lk{cmdMutex};
-    cmdQueue.push(cmd);
+    cmdQueue.push(std::move(cmd));
     cv.notify_one();
 }

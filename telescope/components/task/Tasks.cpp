@@ -2,9 +2,9 @@
 
 #include "Tasks.h"
 
-std::array<std::unique_ptr<CustomTask>, Tasks::NUM_TASKS> Tasks::tasks{};
+std::array<std::shared_ptr<CustomTask>, Tasks::NUM_TASKS> Tasks::tasks{};
 
-bool Tasks::setTask(std::unique_ptr<CustomTask>& task, const TaskID& id)
+bool Tasks::setTask(std::shared_ptr<CustomTask> task, const TaskID& id)
 {
   if (id >= NUM_TASKS)
   {

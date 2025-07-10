@@ -42,7 +42,7 @@ public:
   /// @param[in] id the ID of the task to set.
   ///
   /// @return true if the task was set successfully, false if the ID is invalid.
-  static bool setTask(std::unique_ptr<CustomTask>& task, const TaskID& id);
+  static bool setTask(std::shared_ptr<CustomTask> task, const TaskID& id);
 
   /// Get a pointer to the task with the given ID. Note - this is accessing a managed pointer,
   /// and should not be stored.
@@ -55,7 +55,7 @@ public:
   static void stopTasks();
 
 private:
-  static std::array<std::unique_ptr<CustomTask>, NUM_TASKS> tasks; ///< Container for all tasks in the system.
+  static std::array<std::shared_ptr<CustomTask>, NUM_TASKS> tasks; ///< Container for all tasks in the system.
 
   static constexpr const char* TAG{"Tasks"}; ///< The tag for logging.
 };

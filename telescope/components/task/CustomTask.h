@@ -4,6 +4,7 @@
 #include <array>
 #include <condition_variable>
 #include <esp_pthread.h>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -45,7 +46,9 @@ public:
   void stop();
 
   /// Push a command to the task's command queue.
-  void pushCmd(Command&& cmd);
+  ///
+  /// @param[in] cmd pointer to the command to push to the queue.
+  void pushCmd(std::shared_ptr<Command>&& cmd);
 
 protected:
   /// The thread loop that runs the task logic. This should be
@@ -53,7 +56,7 @@ protected:
   virtual void threadLoop() = 0;
 
   std::condition_variable cv; ///< Condition variable for signaling the task thread.
-  std::queue<Command> cmdQueue; ///< Queue for commands to be processed by the task.
+  std::queue<std::shared_ptr<Command>> cmdQueue; ///< Queue for commands to be processed by the task.
   std::mutex cmdMutex; ///< Mutex for protecting access to the command queue.
 
   bool exitFlag{false}; ///< Flag to indicate if the task should exit.

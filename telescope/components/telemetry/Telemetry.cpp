@@ -5,25 +5,25 @@
 #include <freertos/task.h>
 
 #include "Telemetry.h"
+#include "Serialization.h"
 
 #define SERIALIZE_FIELD(name)                                                \
   if (name##Func)                                                            \
   {                                                                          \
-    if (!serialize(name##Func()))                                            \
+    const auto result{Utils::serialize(telemBuffer.data() + bytesWritten,    \
+                                       telemBuffer.size() - bytesWritten,    \
+                                       name##Func())};                       \
+    if (result < 0)                                                          \
     {                                                                        \
       ESP_LOGE(TAG, "Telemetry field " #name " does not fit in buffer!");    \
       return -1;                                                             \
     }                                                                        \
+    bytesWritten += result;                                                  \
   }                                                                          \
   else                                                                       \
   {                                                                          \
     ESP_LOGW(TAG, "Telemetry field " #name " has no registered callback");   \
-    decltype(name##Func)::result_type dummy;                                 \
-    if (!serialize(dummy))                                                   \
-    {                                                                        \
-      ESP_LOGE(TAG, "Telemetry field " #name " does not fit in buffer!");    \
-      return -1;                                                             \
-    }                                                                        \
+    bytesWritten += sizeof(decltype(name##Func)::result_type);               \
   }
 
 Telemetry::Telemetry()
@@ -35,6 +35,8 @@ Telemetry::Telemetry()
 
 int Telemetry::serializeTelemetry()
 {
+  size_t bytesWritten{0};
+
   // Serialize each field into the buffer
   SERIALIZE_FIELD(SystemTime);
   SERIALIZE_FIELD(FreeHeap);
@@ -56,5 +58,5 @@ int Telemetry::serializeTelemetry()
   SERIALIZE_FIELD(TargetAz);
   SERIALIZE_FIELD(TargetEl);
 
-  return getBytesWritten();
+  return bytesWritten;
 }
