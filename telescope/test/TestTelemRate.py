@@ -14,15 +14,15 @@ else:
 
 # Create a UDP socket
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-local_address = "192.168.1.3"
+local_address = "192.168.4.2"
 local_port = 8000
 udp_socket.bind((local_address, local_port))
 
-target_address = "192.168.1.2"
+target_address = "192.168.4.1"
 target_port = 8000
 
 # Send a rate update
 print("Sending telemetry rate update")
-format_str = "<BH"
+format_str = "!BH"
 packet = struct.pack(format_str, 0, rate)
 udp_socket.sendto(packet, (target_address, target_port))

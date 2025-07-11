@@ -8,7 +8,7 @@
 //#include "TaskFindPosition.h"
 //#include "TaskMoveBaseServos.h"
 //#include "TaskPlanTrajectory.h"
-//#include "TaskReceiveCommand.h"
+#include "TaskReceiveCommand.h"
 #include "Tasks.h"
 #include "Telemetry.h"
 
@@ -16,11 +16,12 @@
 //TaskFindPosition findPos{telemetry, Tasks::findPositionCfg};
 //TaskMoveBaseServos moveBaseServos{telemetry, Tasks::moveBaseServosCfg};
 //TaskPlanTrajectory planTrajectory{telemetry, Tasks::planTrajectoryCfg};
-//TaskReceiveCommand receiveCmd{telemetry, Tasks::receiveCommandCfg};
 
 extern "C" void app_main()
 {
   auto collectTelem{std::make_shared<TaskCollectTelemetry>(Tasks::collectTelemCfg)};
+  auto receiveCommand{std::make_shared<TaskReceiveCommand>(collectTelem->getTelemetry(),
+                                                           Tasks::receiveCommandCfg)};
 
   // Create each task and populate shared Tasks object, then provide to each
   Tasks::setTask(collectTelem, Tasks::TASK_COLLECT_TELEMETRY);
@@ -28,7 +29,7 @@ extern "C" void app_main()
 //  Tasks::setTask(&findPos, Tasks::TASK_FIND_POSITION);
 //  Tasks::setTask(&moveBaseServos, Tasks::TASK_MOVE_BASE_SERVOS);
 //  Tasks::setTask(&planTrajectory, Tasks::TASK_PLAN_TRAJECTORY);
-//  Tasks::setTask(&receiveCmd, Tasks::TASK_RECEIVE_COMMAND);
+  Tasks::setTask(receiveCommand, Tasks::TASK_RECEIVE_COMMAND);
 
   // Start all tasks
   Tasks::startTasks();

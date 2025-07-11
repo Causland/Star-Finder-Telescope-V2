@@ -39,6 +39,9 @@ public:
   CustomTask& operator=(const CustomTask&) = delete;
   CustomTask& operator=(CustomTask&&) = delete;
 
+  /// Get the name of the task.
+  const char* getName() const { return cfg.thread_name; }
+
   /// Start the task thread and begin the thread loop.
   void start();
 

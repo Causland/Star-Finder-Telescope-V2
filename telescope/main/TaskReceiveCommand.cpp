@@ -1,82 +1,119 @@
-#include "Commands.h"
+#include <esp_log.h>
+
+#include "TaskReceiveCommand.h"
 #include "Tasks.h"
-#include "Utils.h"
-#include "WiFiWrapper.h"
 
-static constexpr uint16_t RECEIVE_PERIOD_MS{50};
+#include "ControlCameraCmd.h"
+#include "MoveServoCmd.h"
+#include "PlanTrajectoryCmd.h"
+#include "TelemRateCmd.h"
 
-void taskReceiveCommand(void* params)
+uint16_t TaskReceiveCommand::cmdsReceived{};
+
+TaskReceiveCommand::TaskReceiveCommand(Telemetry& telemetry,
+                                       const esp_pthread_cfg_t& threadConfig) :
+                                        CustomTask(threadConfig)
 {
-  DEBUG_ENTER("taskReceiveCommand()");
+  telemetry.registerTelemFieldCmdsReceivedCB(getCmdsReceived);
+}
 
-  RecvCmdParams* cmdParams = static_cast<RecvCmdParams*>(params);
-  WiFiUDP* cmdReceiver = cmdParams->cmdReceiver;
-  TaskHandle_t* taskHandles = cmdParams->taskHandles;
-  MessageBufferHandle_t* msgBufferHandles = cmdParams->msgBufferHandles;
-  Telemetry* telemetry = cmdParams->telemetry;
-  EventGroupHandle_t startEvent = cmdParams->startEvent;
-
-  // Register task telemetry
-  uint16_t cmdsReceived{0};
-  telemetry->registerTelemFieldCmdsReceived(&cmdsReceived);
-
-  // Allocate a buffer to hold the incoming command
-  // The buffer size should be large enough to hold the largest command packet
-  char cmdBuffer[MAX_CMD_SIZE]{0};
-
-  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
-
-  FOREVER
+void TaskReceiveCommand::threadLoop()
+{
+  while (!exitFlag)
   {
-    DEBUG_HEARTBEAT("ReceiveCommand");
-
-    // Check if there are any incoming command packets
-    int packetSize = cmdReceiver->parsePacket();
-    if (packetSize > 0)
+    // Receive commands from the network interface
+    const auto bytesReceived{cmdReceiver.receive(cmdBuffer.data(), cmdBuffer.size())};
+    if (bytesReceived < 0)
     {
-      // Read first character from the packet to determine the command type
-      int cmdType = cmdReceiver->peek();
-      DEBUG_PRINTLN("Received command type: " + String(cmdType));
-      
-      // Select the command buffer based on the command type
-      MessageBufferHandle_t cmdBufferHandle{nullptr};
-      switch(cmdType)
-      {
-        case CMD_TELEM_RATE:
-          DEBUG_PRINTLN("Telemetry rate command received!");
-          cmdBufferHandle = msgBufferHandles[TASK_COLLECT_TELEMETRY];
-          break;
-        case CMD_PLAN_TRAJECTORY:
-          DEBUG_PRINTLN("Plan trajectory command received!");
-          cmdBufferHandle = msgBufferHandles[TASK_PLAN_TRAJECTORY];
-          break;
-        case CMD_CONTROL_CAMERA:
-          DEBUG_PRINTLN("Control camera command received!");
-          cmdBufferHandle = msgBufferHandles[TASK_CONTROL_CAMERA];
-      }
-      if (cmdBufferHandle != nullptr)
-      {
-        // Read the command from the packet and send it to the appropriate task
-        int bytesRead = cmdReceiver->read(cmdBuffer, sizeof(cmdBuffer));
-        if (bytesRead > 0)
-        {
-          ++cmdsReceived;
-          
-          // Send the command to the task's message buffer. Strip the command type
-          if (xMessageBufferSend(cmdBufferHandle, cmdBuffer + 1, bytesRead - 1, 0) != bytesRead - 1)
-          {
-            DEBUG_PRINTLN("Failed to send command to task message buffer!");
-          }
-        }
-      }
-      else
-      {
-        DEBUG_PRINTLN("Unknown command type received! " + String(cmdType));
+      if (!exitFlag)
+      { 
+        ESP_LOGE(cfg.thread_name, "Failed to receive command!");
+        continue;
       }
     }
 
-    vTaskDelay(RECEIVE_PERIOD_MS * portTICK_PERIOD_MS);
-  }
+    const auto cmdTypeVal = cmdBuffer[Command::POS_CMD_ID];
+    if (cmdTypeVal >= Command::NUM_COMMANDS)
+    {
+      ESP_LOGE(cfg.thread_name, "Received invalid command type: %d", cmdTypeVal);
+      continue;
+    }
+    const auto cmdType = static_cast<Command::CommandID>(cmdTypeVal);
 
-  DEBUG_EXIT("taskReceiveCommand()");
+    std::shared_ptr<Command> cmd;
+    std::shared_ptr<CustomTask> destTask;
+    switch (cmdType)
+    {
+      case Command::CMD_TELEM_RATE:
+      {
+        cmd = std::make_shared<TelemRateCmd>();
+        if (!cmd)
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to create telemetry rate command!");
+          continue;
+        }
+        ESP_LOGD(cfg.thread_name, "Received telemetry rate command!");
+        destTask = Tasks::getTask(Tasks::TASK_COLLECT_TELEMETRY);
+        break;
+      }
+      case Command::CMD_PLAN_TRAJECTORY:
+      {
+        cmd = std::make_shared<PlanTrajectoryCmd>();
+        if (!cmd)
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to create plan trajectory command!");
+          continue;
+        }
+        ESP_LOGD(cfg.thread_name, "Received plan trajectory command!");
+        destTask = Tasks::getTask(Tasks::TASK_PLAN_TRAJECTORY);
+        break;
+      }
+      case Command::CMD_MOVE_SERVO:
+      {
+        cmd = std::make_shared<MoveServoCmd>();
+        if (!cmd)
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to create move servo command!");
+          continue;
+        }
+        ESP_LOGD(cfg.thread_name, "Received move servo command!");
+        destTask = Tasks::getTask(Tasks::TASK_MOVE_BASE_SERVOS);
+        break;
+      }
+      case Command::CMD_CONTROL_CAMERA:
+      {
+        cmd = std::make_shared<ControlCameraCmd>();
+        if (!cmd)
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to create control camera command!");
+          continue;
+        }
+        ESP_LOGD(cfg.thread_name, "Received control camera command!");
+        destTask = Tasks::getTask(Tasks::TASK_CONTROL_CAMERA);
+        break;
+      }
+      default:
+      {
+        ESP_LOGE(cfg.thread_name, "Received unknown command type: %d", cmdTypeVal);
+        continue;
+      }
+    }
+
+    ++cmdsReceived;
+    if (!cmd->deserializeCommand(cmdBuffer.data(), bytesReceived))
+    {
+      ESP_LOGE(cfg.thread_name, "Failed to deserialize command!");
+      continue;
+    }
+
+    if (!destTask)
+    {
+      ESP_LOGE(cfg.thread_name, "No destination task found for command type: %d", cmdTypeVal);
+      continue;
+    }
+
+    destTask->pushCmd(std::move(cmd));
+    ESP_LOGD(cfg.thread_name, "Command of type %d sent to task %s",
+            cmdTypeVal, destTask->getName());
+  }
 }

@@ -15,14 +15,14 @@ bool Tasks::setTask(std::shared_ptr<CustomTask> task, const TaskID& id)
   return true;
 }
 
-CustomTask* Tasks::getTask(const TaskID& id)
+std::shared_ptr<CustomTask> Tasks::getTask(const TaskID& id)
 {
   if (id >= NUM_TASKS)
   {
     return nullptr;
   }
 
-  return tasks[id].get();
+  return tasks[id];
 }
 
 void Tasks::startTasks()

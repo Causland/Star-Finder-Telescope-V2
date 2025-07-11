@@ -27,6 +27,6 @@ vals = [0.0, 0.0, 10.0,
         35.0, 40.0, 30.0,
         40.0, 30.0, 40.0,
         45.0, 20.0, 45.0]
-format_str = "<BBBB" + "f" * len(vals)
+format_str = "!BBBB" + "f" * len(vals)
 packet = struct.pack(format_str, 1, 1, 1, 10, *vals)
 udp_socket.sendto(packet, (target_address, target_port))

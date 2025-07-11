@@ -22,7 +22,7 @@ time.sleep(2)
 
 # Send a trajectory with one part and two entries
 print("Sending trajectory with one part and two entries")
-packet = struct.pack("<BBBBffffff", 1, 1, 1, 2, 1.0, 2.2, 3.3, 
+packet = struct.pack("!BBBBffffff", 1, 1, 1, 2, 1.0, 2.2, 3.3, 
                                                     2.0, 4.4, 5.5)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(3)
@@ -39,25 +39,25 @@ vals = [1.0, 2.2, 3.3,
         8.0, 16.16, 17.17,
         9.0, 18.18, 19.19,
         10.0, 20.20, 21.21]
-format_str = "<BBBB" + "f" * len(vals)
+format_str = "!BBBB" + "f" * len(vals)
 packet = struct.pack(format_str, 1, 1, 1, 10, *vals)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(11)
 
 # Send a trajectory with two parts, each with one entry
 print("Sending trajectory with two parts, each with one entry")
-packet = struct.pack("<BBBBfff", 1, 1, 2, 1, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 1, 2, 1, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBfff", 1, 2, 2, 1, 2.0, 4.4, 5.5)
+packet = struct.pack("!BBBBfff", 1, 2, 2, 1, 2.0, 4.4, 5.5)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(3)
 
 # Send a trajectory with two parts, each with two entries
 print("Sending trajectory with two parts, each with two entries")
-packet = struct.pack("<BBBBffffff", 1, 1, 2, 2, 1.0, 2.2, 3.3,
+packet = struct.pack("!BBBBffffff", 1, 1, 2, 2, 1.0, 2.2, 3.3,
                                                     2.0, 4.4, 5.5)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBffffff", 1, 2, 2, 2, 3.0, 6.6, 7.7,
+packet = struct.pack("!BBBBffffff", 1, 2, 2, 2, 3.0, 6.6, 7.7,
                                                     4.0, 8.8, 9.9)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(5)
@@ -74,7 +74,7 @@ vals = [1.0, 2.2, 3.3,
         8.0, 16.16, 17.17,
         9.0, 18.18, 19.19,
         10.0, 20.20, 21.21]
-format_str = "<BBBB" + "f" * len(vals)
+format_str = "!BBBB" + "f" * len(vals)
 packet = struct.pack(format_str, 1, 1, 2, 10, *vals)
 udp_socket.sendto(packet, (target_address, target_port))
 vals = [11.0, 22.22, 23.23,
@@ -93,13 +93,13 @@ time.sleep(21)
 
 # Send a trajectory with four parts, each with one entry
 print("Sending trajectory with four parts, each with one entry")
-packet = struct.pack("<BBBBfff", 1, 1, 4, 1, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 1, 4, 1, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBfff", 1, 2, 4, 1, 2.0, 4.4, 5.5)
+packet = struct.pack("!BBBBfff", 1, 2, 4, 1, 2.0, 4.4, 5.5)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBfff", 1, 3, 4, 1, 3.0, 6.6, 7.7)
+packet = struct.pack("!BBBBfff", 1, 3, 4, 1, 3.0, 6.6, 7.7)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBfff", 1, 4, 4, 1, 4.0, 8.8, 9.9)
+packet = struct.pack("!BBBBfff", 1, 4, 4, 1, 4.0, 8.8, 9.9)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(5)
 
@@ -115,7 +115,7 @@ vals = [1.0, 2.2, 3.3,
         8.0, 16.16, 17.17,
         9.0, 18.18, 19.19,
         10.0, 20.20, 21.21]
-format_str = "<BBBB" + "f" * len(vals)
+format_str = "!BBBB" + "f" * len(vals)
 packet = struct.pack(format_str, 1, 1, 4, 10, *vals)
 udp_socket.sendto(packet, (target_address, target_port))
 vals = [11.0, 22.22, 23.23,
@@ -158,28 +158,28 @@ time.sleep(41)
 
 # Send a trajectory with out of order parts
 print("Sending trajectory with out of order parts")
-packet = struct.pack("<BBBBfff", 1, 2, 4, 1, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 2, 4, 1, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBfff", 1, 1, 4, 1, 2.0, 4.4, 5.5)
+packet = struct.pack("!BBBBfff", 1, 1, 4, 1, 2.0, 4.4, 5.5)
 udp_socket.sendto(packet, (target_address, target_port))
-packet = struct.pack("<BBBBfff", 1, 4, 4, 1, 3.0, 6.6, 7.7)
+packet = struct.pack("!BBBBfff", 1, 4, 4, 1, 3.0, 6.6, 7.7)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(2)
 
 # Send a trajectory with too many parts
 print("Sending trajectory with too many parts")
-packet = struct.pack("<BBBBfff", 1, 1, 5, 1, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 1, 5, 1, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(2)
 
 # Send a trajectory with an invalid number of entries
 print("Sending trajectory with an invalid number of entries")
-packet = struct.pack("<BBBBfff", 1, 1, 1, 11, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 1, 1, 11, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(2)
 
 # Send a trajectory with missing entries
 print("Sending trajectory with missing entries")
-packet = struct.pack("<BBBBfff", 1, 1, 1, 2, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 1, 1, 2, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(2)

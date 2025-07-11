@@ -14,6 +14,7 @@ public:
     CMD_PLAN_TRAJECTORY,
     CMD_MOVE_SERVO,
     CMD_CONTROL_CAMERA,
+    NUM_COMMANDS,
   };
 
   static constexpr std::size_t MAX_CMD_SIZE{128};

@@ -44,9 +44,8 @@ public:
   /// @return true if the task was set successfully, false if the ID is invalid.
   static bool setTask(std::shared_ptr<CustomTask> task, const TaskID& id);
 
-  /// Get a pointer to the task with the given ID. Note - this is accessing a managed pointer,
-  /// and should not be stored.
-  static CustomTask* getTask(const TaskID& id);
+  /// Get a pointer to the task with the given ID.
+  static std::shared_ptr<CustomTask> getTask(const TaskID& id);
 
   /// Start all tasks in the system.
   static void startTasks();

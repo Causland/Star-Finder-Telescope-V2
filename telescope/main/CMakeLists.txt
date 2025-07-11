@@ -4,6 +4,6 @@ idf_component_register(SRCS
 #                        TaskControlCamera.cpp
 #                        TaskMoveBaseServos.cpp
 #                        TaskPlanTrajectory.cpp
-#                        TaskReceiveCommand.cpp
+                        TaskReceiveCommand.cpp
                        INCLUDE_DIRS 
                         .)

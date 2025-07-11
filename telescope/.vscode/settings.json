@@ -18,5 +18,6 @@
     "uart_types.h": "c",
     "cstdint": "cpp"
   },
-  "idf.port": "/dev/ttyUSB0"
+  "idf.port": "/dev/ttyUSB0",
+  "idf.flashType": "UART"
 }
