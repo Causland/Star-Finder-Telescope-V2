@@ -55,7 +55,7 @@ public:
   TELEM_FIELD(TrajRunning, bool);
   TELEM_FIELD(TrajNumEntries, uint8_t);
   TELEM_FIELD(TrajCurrEntry, uint8_t);
-  TELEM_FIELD(TimeToNextEntry, unsigned long);
+  TELEM_FIELD(TimeToNextEntry, int64_t);
 
   // Servo Info
   TELEM_FIELD(CurrAz, double);

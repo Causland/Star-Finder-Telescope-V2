@@ -11,7 +11,7 @@ while True:
   # Receive data from the socket
   data, addr = udp_socket.recvfrom(1024)
   
-  format = "!IIHfffBBBIdddff"
+  format = "!IIHfffBBBqdddff"
   unpacked_data = struct.unpack(format, data)
   vals = [f"{val:.3f}" if isinstance(val, float) else val for val in unpacked_data]
 
