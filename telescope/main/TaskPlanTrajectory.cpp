@@ -101,6 +101,7 @@ void TaskPlanTrajectory::threadLoop()
       const auto begin{std::begin(trajCmd->entries)};
       std::copy(begin, begin + trajCmd->header.numEntries, 
                   std::begin(trajectory) + numEntries);
+      numEntries += trajCmd->header.numEntries;
 
       if (trajCmd->header.seqNum == numParts)
       {

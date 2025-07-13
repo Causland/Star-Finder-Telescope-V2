@@ -5,11 +5,11 @@ from functools import reduce
 
 # Create a UDP socket
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-local_address = "192.168.1.3"
+local_address = "192.168.4.2"
 local_port = 8000
 udp_socket.bind((local_address, local_port))
 
-target_address = "192.168.1.2"
+target_address = "192.168.4.1"
 target_port = 8000
 
 # Trajectory packet in the format:
