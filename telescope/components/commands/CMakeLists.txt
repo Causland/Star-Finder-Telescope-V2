@@ -1,6 +1,6 @@
 idf_component_register(SRCS
                         ControlCameraCmd.cpp
-                        MoveServoCmd.cpp
+                        MoveBaseServosCmd.cpp
                         PlanTrajectoryCmd.cpp
                         TelemRateCmd.cpp
                        INCLUDE_DIRS 

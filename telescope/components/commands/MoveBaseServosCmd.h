@@ -1,13 +1,13 @@
-#ifndef __MOVE_SERVO_CMD_H__
-#define __MOVE_SERVO_CMD_H__
+#ifndef __MOVE_BASE_SERVOS_CMD_H__
+#define __MOVE_BASE_SERVOS_CMD_H__
 
 #include "Command.h"
 
-class MoveServoCmd : public Command
+class MoveBaseServosCmd : public Command
 {
 public:
-  MoveServoCmd();
-  MoveServoCmd(const float& az, const float& el);
+  MoveBaseServosCmd();
+  MoveBaseServosCmd(const float& az, const float& el);
 
   /// Serialize the command data into the provided buffer.
   ///
@@ -29,4 +29,4 @@ public:
   float el; ///< Target vertical angle in degrees
 };
 
-#endif // __MOVE_SERVO_CMD_H__
+#endif // __MOVE_BASE_SERVOS_CMD_H__

@@ -4,6 +4,12 @@
 #include "TaskCollectTelemetry.h"
 #include "TelemRateCmd.h"
 
+TaskCollectTelemetry::TaskCollectTelemetry(const esp_pthread_cfg_t& threadConfig) : 
+                                            CustomTask(threadConfig)
+{
+
+}
+
 void TaskCollectTelemetry::threadLoop()
 {
   while (!exitFlag)
@@ -48,7 +54,7 @@ void TaskCollectTelemetry::threadLoop()
         continue;
       }
 
-      // Deserialize command
+      // Process command
       if (cmd->id == Command::CMD_TELEM_RATE)
       {
         auto telemRateCmd = static_pointer_cast<TelemRateCmd>(cmd);

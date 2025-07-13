@@ -1,6 +1,6 @@
 #include <esp_log.h>
 
-#include "MoveServoCmd.h"
+#include "MoveBaseServosCmd.h"
 #include "TaskPlanTrajectory.h"
 #include "Tasks.h"
 
@@ -42,10 +42,10 @@ void TaskPlanTrajectory::threadLoop()
       continue;
     }
 
-    // Deserialize command
+    // Process command
     if (cmd->id == Command::CMD_PLAN_TRAJECTORY)
     {
-      auto trajCmd = static_pointer_cast<PlanTrajectoryCmd>(cmd);
+      auto trajCmd = std::static_pointer_cast<PlanTrajectoryCmd>(cmd);
       
       // Check if the sequence number is next expected
       if (trajCmd->header.seqNum != lastSeqNumReceived + 1)
@@ -159,7 +159,7 @@ void TaskPlanTrajectory::processTrajectory(const std::chrono::steady_clock::time
     ESP_LOGI(cfg.thread_name, "Processing trajectory entry: %f, %f, %f",
              entry.t, entry.az, entry.el);
 
-    auto cmd{std::make_shared<MoveServoCmd>(entry.az, entry.el)};
+    auto cmd{std::make_shared<MoveBaseServosCmd>(entry.az, entry.el)};
     moveServosTask->pushCmd(cmd);
   }
 

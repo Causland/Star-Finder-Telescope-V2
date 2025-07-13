@@ -11,8 +11,7 @@
 class TaskCollectTelemetry : public CustomTask
 {
 public:
-  TaskCollectTelemetry(const esp_pthread_cfg_t& threadConfig)
-                        : CustomTask(threadConfig) {}
+  TaskCollectTelemetry(const esp_pthread_cfg_t& threadConfig);
 
   TaskCollectTelemetry(const TaskCollectTelemetry&) = delete;
   TaskCollectTelemetry(TaskCollectTelemetry&&) = delete;

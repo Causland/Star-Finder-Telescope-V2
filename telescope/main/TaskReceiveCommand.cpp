@@ -4,7 +4,7 @@
 #include "Tasks.h"
 
 #include "ControlCameraCmd.h"
-#include "MoveServoCmd.h"
+#include "MoveBaseServosCmd.h"
 #include "PlanTrajectoryCmd.h"
 #include "TelemRateCmd.h"
 
@@ -68,9 +68,9 @@ void TaskReceiveCommand::threadLoop()
         destTask = Tasks::getTask(Tasks::TASK_PLAN_TRAJECTORY);
         break;
       }
-      case Command::CMD_MOVE_SERVO:
+      case Command::CMD_MOVE_BASE_SERVOS:
       {
-        cmd = std::make_shared<MoveServoCmd>();
+        cmd = std::make_shared<MoveBaseServosCmd>();
         if (!cmd)
         {
           ESP_LOGE(cfg.thread_name, "Failed to create move servo command!");

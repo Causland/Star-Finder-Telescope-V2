@@ -1,102 +1,77 @@
-#include <freertos/FreeRTOS.h>
-#include <freertos/message_buffer.h>
 
-#include "Commands.h"
+#include <esp_log.h>
+
+#include "TaskMoveBaseServos.h"
 #include "Tasks.h"
-#include "Utils.h"
-#include "CustomServo.h"
-#include "PIDController.h"
 
-// Define servo constants
-static constexpr uint8_t VERT_SERVO_PIN{25};
-static constexpr uint16_t VERT_SERVO_MIN_US{860};
-static constexpr uint16_t VERT_SERVO_MAX_US{1490};
-static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
+PositionalServo TaskMoveBaseServos::vertServo
+        {VERT_SERVO_PIN, (VERT_SERVO_MIN_US + VERT_SERVO_MAX_US) / 2, 
+         VERT_SERVO_MIN_US, VERT_SERVO_MAX_US, VERT_SERVO_MOTION_RANGE_DEG};
+std::shared_ptr<Parallax360Servo> TaskMoveBaseServos::horizServo
+        {std::make_shared<Parallax360Servo>(
+            HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
+            HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
+            HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN)};
+PIDController TaskMoveBaseServos::horizPID{horizServo, 5, 1.275, 3.0, 0.425};
+float TaskMoveBaseServos::targetAz{};
+float TaskMoveBaseServos::targetEl{};
 
-static constexpr uint8_t HORIZ_SERVO_PIN{26};
-static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{27};
-static constexpr uint16_t HORIZ_SERVO_STOP_US{1500};
-static constexpr uint16_t HORIZ_SERVO_MIN_SPEED_OFFSET_US{30};
-static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_OFFSET_US{220};
-static constexpr uint16_t HORIZ_SERVO_MAX_SPEED_DPS{840};
-static constexpr uint16_t HORIZ_SERVO_DEFAULT_US{HORIZ_SERVO_STOP_US};
-static constexpr uint16_t HORIZ_SERVO_REFRESH_RATE_MS{10};
-
-// File local variables
-MoveServoCmd_t moveServoCmd{0.0, 0.0};
-PositionalServo vertServo{VERT_SERVO_PIN, (VERT_SERVO_MIN_US + VERT_SERVO_MAX_US) / 2, 
-                          VERT_SERVO_MIN_US, VERT_SERVO_MAX_US, VERT_SERVO_MOTION_RANGE_DEG};
-Parallax360Servo horizServo{HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
-                            HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
-                            HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN};
-PIDController horizPID{&horizServo, 5, 1.275, 3.0, 0.425};
-float targetAz{0.0};
-float targetEl{0.0};
-
-void taskMoveBaseServos(void* params)
+TaskMoveBaseServos::TaskMoveBaseServos(Telemetry& telemetry, 
+                                       const esp_pthread_cfg_t& threadConfig) :
+                                        CustomTask(threadConfig)
 {
-  DEBUG_ENTER("taskBaseMoveServos()");
+  telemetry.registerTelemFieldCurrAzCB(getCurrAz);
+  telemetry.registerTelemFieldCurrElCB(getCurrEl);
+  telemetry.registerTelemFieldSpeedAzCB(getSpeedAz);
+  telemetry.registerTelemFieldTargetAzCB(getTargetAz);
+  telemetry.registerTelemFieldTargetElCB(getTargetEl);
+}
 
-  MoveBaseServoParams* servoParams = static_cast<MoveBaseServoParams*>(params);
-  MessageBufferHandle_t msgBufferHandle = servoParams->msgBufferHandle;
-  Telemetry* telemetry = servoParams->telemetry;
-  EventGroupHandle_t startEvent = servoParams->startEvent;
+void TaskMoveBaseServos::threadLoop()
+{
+  if (!horizServo)
+  {
+    ESP_LOGE(cfg.thread_name, "Horiz servo is nullptr");
+    return;
+  }
 
-  // Register task telemetry
-  telemetry->registerTelemFieldCurrAz(&horizPID.prevFilteredCurrAngle);
-  telemetry->registerTelemFieldCurrEl(&vertServo.currAngle);
-  telemetry->registerTelemFieldSpeedAz(&horizPID.prevFilteredVel);
-  telemetry->registerTelemFieldTargetAz(&targetAz);
-  telemetry->registerTelemFieldTargetEl(&targetEl);
-
+  // Setup servos before starting forever loop
   vertServo.init();
-  horizServo.init();
-
+  horizServo->init();
   horizPID.updateTarget(20);
 
-  xEventGroupWaitBits(startEvent, BIT0, pdFALSE, pdTRUE, portMAX_DELAY);
-
-  FOREVER
+  while (!exitFlag)
   {
-    DEBUG_HEARTBEAT("MoveServo");
+    // Wait for a command or exit signal with a timeout to service the PID
+    // controller of the servos
+    std::unique_lock<std::mutex> lk(cmdMutex);
+    cv.wait_for(lk, std::chrono::milliseconds(HORIZ_SERVO_REFRESH_RATE_MS),
+                [this](){ return !cmdQueue.empty() || exitFlag; });
+    
+    if (exitFlag) break;
 
-    // Check if there is a new command in the message buffer. This will update
-    // the target angle for both servos. Do not wait for a command
-    size_t bytesRead = xMessageBufferReceive(msgBufferHandle, reinterpret_cast<uint8_t*>(&moveServoCmd), 
-                                             sizeof(MoveServoCmd_t), 0);
-    if (bytesRead == sizeof(MoveServoCmd_t))
+    if (!cmdQueue.empty())
     {
-      DEBUG_PRINTLN("Received Move Servo Command: " + String(moveServoCmd.az) + ", " + 
-                    String(moveServoCmd.el));
-      targetAz = moveServoCmd.az;
-      targetEl = moveServoCmd.el;
+      // Get the command from the queue
+      auto cmd = std::move(cmdQueue.front());
+      cmdQueue.pop();
+      lk.unlock();
 
-      // Move the vertical servo to the specified angle
-      int numUs{static_cast<int>(moveServoCmd.el * vertServo.usPerDeg + vertServo.minUs)};
-      if (numUs < vertServo.minUs) numUs = vertServo.minUs;
-      else if (numUs > vertServo.maxUs) numUs = vertServo.maxUs;
-      vertServo.writeMicroseconds(numUs);
-
-      // Move the horizontal servo to the specified angle
-      double targetAngle{moveServoCmd.az};
-
-      // Calculate the next target based on the current real angle adjusted for turns
-      horizServo.measurePosition();
-      const auto measuredAngle{horizServo.getMeasuredAngle()};
-      const auto& turns{horizServo.turns};
-      if (targetAngle > measuredAngle && 
-          targetAngle - measuredAngle > 180.0)
+      if (!cmd)
       {
-        horizPID.updateTarget(targetAngle + 360.0 * (turns - 1));
-      }
-      else if (measuredAngle > targetAngle &&
-                measuredAngle - targetAngle > 180)
-      {
-        horizPID.updateTarget(targetAngle + 360.0 * (turns + 1));
+        ESP_LOGE(cfg.thread_name, "Received null command!");
       }
       else
       {
-        horizPID.updateTarget(targetAngle + 360.0 * turns);
+        if (cmd->id == Command::CMD_MOVE_BASE_SERVOS)
+        {
+          auto moveServoCmd = std::static_pointer_cast<MoveBaseServosCmd>(cmd);
+
+          ESP_LOGD(cfg.thread_name, "Received Move Servo Command: %f, %f",
+                                    moveServoCmd->az, moveServoCmd->el);
+
+          processServoUpdate(moveServoCmd);
+        }
       }
     }
 
@@ -106,10 +81,39 @@ void taskMoveBaseServos(void* params)
     // Move the horizontal servo using the PID controller. This is called every
     // cycle of the task
     horizPID.move();
-
-    // Delay for the refresh rate of the horizontal servo
-    vTaskDelay(pdMS_TO_TICKS(HORIZ_SERVO_REFRESH_RATE_MS));
   }
+}
 
-  DEBUG_EXIT("taskBaseMoveServos()");
+void TaskMoveBaseServos::processServoUpdate(const std::shared_ptr<MoveBaseServosCmd>& moveServoCmd)
+{
+  targetAz = moveServoCmd->az;
+  targetEl = moveServoCmd->el;
+
+  // Move the vertical servo to the specified angle
+  int numUs{static_cast<int>(moveServoCmd->el * vertServo.usPerDeg + vertServo.minUs)};
+  if (numUs < vertServo.minUs) numUs = vertServo.minUs;
+  else if (numUs > vertServo.maxUs) numUs = vertServo.maxUs;
+  vertServo.writeMicroseconds(numUs);
+
+  // Move the horizontal servo to the specified angle
+  double targetAngle{moveServoCmd->az};
+
+  // Calculate the next target based on the current real angle adjusted for turns
+  horizServo->measurePosition();
+  const auto measuredAngle{horizServo->getMeasuredAngle()};
+  const auto& turns{horizServo->turns};
+  if (targetAngle > measuredAngle && 
+      targetAngle - measuredAngle > 180.0)
+  {
+    horizPID.updateTarget(targetAngle + 360.0 * (turns - 1));
+  }
+  else if (measuredAngle > targetAngle &&
+            measuredAngle - targetAngle > 180)
+  {
+    horizPID.updateTarget(targetAngle + 360.0 * (turns + 1));
+  }
+  else
+  {
+    horizPID.updateTarget(targetAngle + 360.0 * turns);
+  }
 }

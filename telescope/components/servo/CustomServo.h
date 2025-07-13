@@ -3,7 +3,6 @@
 
 #include <ESP32Servo.h>
 
-
 /// Servo wrapper class to provide some default properties and state to servos. 
 class CustomServo
 {

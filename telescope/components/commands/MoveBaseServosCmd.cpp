@@ -1,19 +1,19 @@
-#include "MoveServoCmd.h"
+#include "MoveBaseServosCmd.h"
 #include "Serialization.h"
 
-MoveServoCmd::MoveServoCmd() : Command(CommandID::CMD_MOVE_SERVO)
+MoveBaseServosCmd::MoveBaseServosCmd() : Command(CommandID::CMD_MOVE_BASE_SERVOS)
 {
 
 }
 
-MoveServoCmd::MoveServoCmd(const float& az, const float& el)
-                            : Command(CommandID::CMD_MOVE_SERVO), 
+MoveBaseServosCmd::MoveBaseServosCmd(const float& az, const float& el)
+                            : Command(CommandID::CMD_MOVE_BASE_SERVOS), 
                               az(az), el(el)
 {
 
 }
 
-bool MoveServoCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
+bool MoveBaseServosCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
 {
   std::size_t bytesWritten{0};
 
@@ -34,7 +34,7 @@ bool MoveServoCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
   return true;
 }
 
-bool MoveServoCmd::deserializeCommand(const uint8_t* buf, const std::size_t& size)
+bool MoveBaseServosCmd::deserializeCommand(const uint8_t* buf, const std::size_t& size)
 {
   std::size_t bytesRead{0};
 
