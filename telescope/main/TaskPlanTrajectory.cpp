@@ -152,6 +152,7 @@ void TaskPlanTrajectory::processTrajectory(const std::chrono::steady_clock::time
   for (size_t i=0; i<numEntries; ++i)
   {
     const auto& entry{trajectory[i]};
+    currEntry = i + 1;
 
     const auto wakeUpTime{startTime + duration<float>(entry.t)};
     timeToNextEntry = duration_cast<milliseconds>(wakeUpTime - steady_clock::now());

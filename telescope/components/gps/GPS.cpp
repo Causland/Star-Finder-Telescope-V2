@@ -4,20 +4,20 @@
 
 GPS::GPS()
 {
-  Serial1.begin(9600);
+  Serial2.begin(9600);
 }
 
 GPS::~GPS()
 {
-  Serial1.end();
+  Serial2.end();
 }
 
 bool GPS::findPosition()
 {
-  while (Serial1.available())
+  while (Serial2.available() > 0)
   {
     // Read the GPS data
-    gps.encode(Serial1.read()); 
+    gps.encode(Serial2.read()); 
   }
 
   if (gps.location.isValid())
