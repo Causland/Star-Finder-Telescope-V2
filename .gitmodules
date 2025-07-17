@@ -10,3 +10,6 @@
 [submodule "telescope/components/esp32servo/ESP32Servo"]
 	path = telescope/components/esp32servo/ESP32Servo
 	url = https://github.com/Causland/ESP32Servo.git
+[submodule "telescope/components/arducam/Arduino"]
+	path = telescope/components/arducam/Arduino
+        url = https://github.com/Causland/ArduCAM-Arduino.git
