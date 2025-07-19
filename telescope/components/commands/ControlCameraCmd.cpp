@@ -60,6 +60,9 @@ bool ControlCameraCmd::deserializeCommand(const uint8_t* buf, const std::size_t&
       result = Utils::deserialize(buf + bytesRead, size - bytesRead, &cfg);
       if (result < 0) return false;
       break;
+    case CTRL_CAM_PHOTO:
+      // Nothing to deserialize here
+      break;
     case CTRL_CAM_VIDEO:
       result = Utils::deserialize(buf + bytesRead, size - bytesRead, &vid);
       if (result < 0) return false;

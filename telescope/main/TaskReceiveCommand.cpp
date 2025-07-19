@@ -102,7 +102,7 @@ void TaskReceiveCommand::threadLoop()
     ++cmdsReceived;
     if (!cmd->deserializeCommand(cmdBuffer.data(), bytesReceived))
     {
-      ESP_LOGE(cfg.thread_name, "Failed to deserialize command!");
+      ESP_LOGE(cfg.thread_name, "Failed to deserialize command %d!", cmdTypeVal);
       continue;
     }
 
