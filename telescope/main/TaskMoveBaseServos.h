@@ -22,9 +22,9 @@ public:
   TaskMoveBaseServos& operator=(const TaskMoveBaseServos&) = delete;
   TaskMoveBaseServos& operator=(TaskMoveBaseServos&&) = delete;
 
-  static double getCurrAz() { return horizPID.prevFilteredCurrAngle; }
+  static double getCurrAz() { return horizPID->prevFilteredCurrAngle; }
   static double getCurrEl() { return vertServo.currAngle; }
-  static double getSpeedAz() { return horizPID.prevFilteredVel; }
+  static double getSpeedAz() { return horizPID->prevFilteredVel; }
   static float getTargetAz() { return targetAz; }
   static float getTargetEl() { return targetEl; }
 
@@ -34,7 +34,7 @@ protected:
 private:
   void processServoUpdate(const std::shared_ptr<MoveBaseServosCmd>& moveServoCmd);
 
-  static constexpr uint8_t VERT_SERVO_PIN{25};
+  static constexpr uint8_t VERT_SERVO_PIN{33};
   static constexpr uint16_t VERT_SERVO_MIN_US{860};
   static constexpr uint16_t VERT_SERVO_MAX_US{1490};
   static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
@@ -50,7 +50,7 @@ private:
 
   static PositionalServo vertServo;
   static std::shared_ptr<Parallax360Servo> horizServo;
-  static PIDController horizPID;
+  static std::unique_ptr<PIDController> horizPID;
   static float targetAz;
   static float targetEl;
 };

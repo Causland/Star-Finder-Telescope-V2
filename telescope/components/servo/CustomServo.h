@@ -78,15 +78,18 @@ public:
   /// @param[in] maxSpeedOffsetUs the maximum microsecond offset the servo can be set (max speed).
   /// @param[in] maxSpeedDps the calculated maximum speed in deg per second the servo can operate.
   ///                        Used to help filter sporadic jumps in sensors.
-  /// @param[in] feedbackPinNum the physical pin number of the feedback sensor.
+  /// @param[in] feedbackPinNum the physical pin number of the feedback sensor. UINT8_MAX for unused
   ContinuousServo(const uint8_t pinNum, const uint16_t defaultUs,
                    const uint16_t minSpeedOffsetUs, const uint16_t maxSpeedOffsetUs,
-                   const uint16_t maxSpeedDps, const uint8_t feedbackPinNum) : 
+                   const uint16_t maxSpeedDps, const uint8_t feedbackPinNum = UINT8_MAX) : 
                     CustomServo(pinNum, defaultUs, defaultUs - maxSpeedOffsetUs, defaultUs + maxSpeedOffsetUs),
                     minSpeedOffsetUs(minSpeedOffsetUs), maxSpeedOffsetUs(maxSpeedOffsetUs), 
                     maxSpeedDps(maxSpeedDps), feedbackPinNum(feedbackPinNum) 
   {
-    pinMode(feedbackPinNum, INPUT);
+    if (feedbackPinNum != UINT8_MAX)
+    {
+      pinMode(feedbackPinNum, INPUT);
+    }
   }
   
   ContinuousServo(const ContinuousServo&) = delete;
@@ -104,6 +107,10 @@ public:
   /// adjusted for the number of turns.
   /// @return the measured angle from 0-360 degrees.
   double getMeasuredAngle() const { return currMeasuredAngle; }
+
+  /// Measure the current position of the servo.
+  /// @return the position of the servo in degrees.
+  double measurePosition() override { return 0.0; }
 
   uint16_t minSpeedOffsetUs{0}; /// Microsecond offset to cause rotation of servo.
   uint16_t maxSpeedOffsetUs{UINT16_MAX}; /// Microsecond offset to rotate servo at max speed.

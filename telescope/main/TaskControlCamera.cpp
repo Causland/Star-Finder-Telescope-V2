@@ -48,19 +48,19 @@ void TaskControlCamera::threadLoop()
       {
         case ControlCameraCmd::CTRL_CAM_CONFIG:
         {
-          ESP_LOGD(cfg.thread_name, "Received cam config command. ID=%u val=%u",
+          ESP_LOGI(cfg.thread_name, "Received cam config command. ID=%u val=%u",
                                     camCmd->cfg.configID, camCmd->cfg.value);
           break;
         }
         case ControlCameraCmd::CTRL_CAM_PHOTO:
         {
-          ESP_LOGD(cfg.thread_name, "Received take photo command");
+          ESP_LOGI(cfg.thread_name, "Received take photo command");
           cam.takePhoto();
           break;
         }
         case ControlCameraCmd::CTRL_CAM_VIDEO:
         {
-          ESP_LOGD(cfg.thread_name, "Received take video command. dur=%lus", camCmd->vid.duration);
+          ESP_LOGI(cfg.thread_name, "Received take video command. dur=%lus", camCmd->vid.duration);
           cam.takeVideo();
           break;
         }

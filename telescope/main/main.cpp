@@ -10,10 +10,9 @@
 #include "TaskFindPosition.h"
 #include "TaskPlanTrajectory.h"
 #include "TaskReceiveCommand.h"
+#include "TaskFocus.h"
 #include "Tasks.h"
 #include "Telemetry.h"
-
-//TaskControlCamera controlCam{telemetry, Tasks::controlCameraCfg};
 
 extern "C" void app_main()
 {
@@ -28,6 +27,8 @@ extern "C" void app_main()
                                                   Tasks::findPositionCfg)};
   auto controlCam{std::make_shared<TaskControlCamera>(collectTelem->getTelemetry(),
                                                       Tasks::controlCameraCfg)};
+  auto focus{std::make_shared<TaskFocus>(collectTelem->getTelemetry(),
+                                         Tasks::focusCfg)};
 
   // Create each task and populate shared Tasks object, then provide to each
   Tasks::setTask(collectTelem, Tasks::TASK_COLLECT_TELEMETRY);
@@ -36,6 +37,7 @@ extern "C" void app_main()
   Tasks::setTask(moveBaseServos, Tasks::TASK_MOVE_BASE_SERVOS);
   Tasks::setTask(planTrajectory, Tasks::TASK_PLAN_TRAJECTORY);
   Tasks::setTask(receiveCommand, Tasks::TASK_RECEIVE_COMMAND);
+  Tasks::setTask(focus, Tasks::TASK_FOCUS);
 
   // Start all tasks
   Tasks::startTasks();

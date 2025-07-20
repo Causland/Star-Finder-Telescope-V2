@@ -3,6 +3,7 @@ idf_component_register(SRCS
                         TaskCollectTelemetry.cpp
                         TaskControlCamera.cpp
                         TaskFindPosition.cpp
+                        TaskFocus.cpp
                         TaskMoveBaseServos.cpp
                         TaskPlanTrajectory.cpp
                         TaskReceiveCommand.cpp

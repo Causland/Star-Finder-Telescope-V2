@@ -7,12 +7,8 @@
 PositionalServo TaskMoveBaseServos::vertServo
         {VERT_SERVO_PIN, (VERT_SERVO_MIN_US + VERT_SERVO_MAX_US) / 2, 
          VERT_SERVO_MIN_US, VERT_SERVO_MAX_US, VERT_SERVO_MOTION_RANGE_DEG};
-std::shared_ptr<Parallax360Servo> TaskMoveBaseServos::horizServo
-        {std::make_shared<Parallax360Servo>(
-            HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
-            HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
-            HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN)};
-PIDController TaskMoveBaseServos::horizPID{horizServo, 5, 1.275, 3.0, 0.425};
+std::shared_ptr<Parallax360Servo> TaskMoveBaseServos::horizServo{};
+std::unique_ptr<PIDController> TaskMoveBaseServos::horizPID{};
 float TaskMoveBaseServos::targetAz{};
 float TaskMoveBaseServos::targetEl{};
 
@@ -20,6 +16,23 @@ TaskMoveBaseServos::TaskMoveBaseServos(Telemetry& telemetry,
                                        const esp_pthread_cfg_t& threadConfig) :
                                         CustomTask(threadConfig)
 {
+  horizServo = std::make_shared<Parallax360Servo>(
+                HORIZ_SERVO_PIN, HORIZ_SERVO_STOP_US, 
+                HORIZ_SERVO_MIN_SPEED_OFFSET_US, HORIZ_SERVO_MAX_SPEED_OFFSET_US,
+                HORIZ_SERVO_MAX_SPEED_DPS, HORIZ_SERVO_FEEDBACK_PIN);
+  if (!horizServo)
+  {
+    ESP_LOGE(cfg.thread_name, "Failed to create horizontal servo");
+    return;
+  }
+
+  horizPID = std::make_unique<PIDController>(horizServo, 5, 1.275, 3.0, 0.425);
+  if (!horizPID)
+  {
+    ESP_LOGE(cfg.thread_name, "Failed to create horizontal servo controller");
+    return;
+  }
+
   telemetry.registerTelemFieldCurrAzCB(getCurrAz);
   telemetry.registerTelemFieldCurrElCB(getCurrEl);
   telemetry.registerTelemFieldSpeedAzCB(getSpeedAz);
@@ -34,11 +47,16 @@ void TaskMoveBaseServos::threadLoop()
     ESP_LOGE(cfg.thread_name, "Horiz servo is nullptr");
     return;
   }
+  if (!horizPID)
+  {
+    ESP_LOGE(cfg.thread_name, "Horiz servo controller is nullptr");
+    return;
+  }
 
   // Setup servos before starting forever loop
   vertServo.init();
   horizServo->init();
-  horizPID.updateTarget(20);
+  horizPID->updateTarget(20);
 
   while (!exitFlag)
   {
@@ -80,7 +98,7 @@ void TaskMoveBaseServos::threadLoop()
     
     // Move the horizontal servo using the PID controller. This is called every
     // cycle of the task
-    horizPID.move();
+    horizPID->move();
   }
 }
 
@@ -105,15 +123,15 @@ void TaskMoveBaseServos::processServoUpdate(const std::shared_ptr<MoveBaseServos
   if (targetAngle > measuredAngle && 
       targetAngle - measuredAngle > 180.0)
   {
-    horizPID.updateTarget(targetAngle + 360.0 * (turns - 1));
+    horizPID->updateTarget(targetAngle + 360.0 * (turns - 1));
   }
   else if (measuredAngle > targetAngle &&
             measuredAngle - targetAngle > 180)
   {
-    horizPID.updateTarget(targetAngle + 360.0 * (turns + 1));
+    horizPID->updateTarget(targetAngle + 360.0 * (turns + 1));
   }
   else
   {
-    horizPID.updateTarget(targetAngle + 360.0 * turns);
+    horizPID->updateTarget(targetAngle + 360.0 * turns);
   }
 }

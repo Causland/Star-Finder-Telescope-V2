@@ -21,7 +21,7 @@ public:
                 const double& P=0.0, const double& I=0.0, const double& D=0.0) : 
                   servo(std::move(servo)), settlingTimeSec(settlingTimeSec), K_P(P), K_I(I), K_D(D) 
   {
-    if (servo == nullptr) 
+    if (this->servo == nullptr) 
     {
       ESP_LOGE(TAG, "Servo cannot be null for PID controller");
     }

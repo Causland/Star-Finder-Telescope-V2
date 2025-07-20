@@ -7,6 +7,7 @@
 #include "MoveBaseServosCmd.h"
 #include "PlanTrajectoryCmd.h"
 #include "TelemRateCmd.h"
+#include "FocusCmd.h"
 
 uint16_t TaskReceiveCommand::cmdsReceived{};
 
@@ -90,6 +91,18 @@ void TaskReceiveCommand::threadLoop()
         }
         ESP_LOGD(cfg.thread_name, "Received control camera command!");
         destTask = Tasks::getTask(Tasks::TASK_CONTROL_CAMERA);
+        break;
+      }
+      case Command::CMD_FOCUS:
+      {
+        cmd = std::make_shared<FocusCmd>();
+        if (!cmd)
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to create focus command!");
+          continue;
+        }
+        ESP_LOGD(cfg.thread_name, "Received focus command!");
+        destTask = Tasks::getTask(Tasks::TASK_FOCUS);
         break;
       }
       default:

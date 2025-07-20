@@ -19,6 +19,7 @@ public:
     TASK_PLAN_TRAJECTORY,
     TASK_CONTROL_CAMERA,
     TASK_FIND_POSITION,
+    TASK_FOCUS,
     NUM_TASKS,
   };
 
@@ -34,6 +35,8 @@ public:
                                       {4096, 2, false, "ControlCamera", 1, MALLOC_CAP_DEFAULT};
   static constexpr esp_pthread_cfg_t findPositionCfg
                                       {4096, 2, false, "FindGPSPos", 1, MALLOC_CAP_DEFAULT};
+  static constexpr esp_pthread_cfg_t focusCfg
+                                      {4096, 2, false, "Focus", 1, MALLOC_CAP_DEFAULT};
 
   /// Set the task with the given ID to the provided task pointer. The pointer will be
   /// managed by the Tasks class and is moved into the tasks array.

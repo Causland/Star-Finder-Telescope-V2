@@ -3,6 +3,7 @@ idf_component_register(SRCS
                         MoveBaseServosCmd.cpp
                         PlanTrajectoryCmd.cpp
                         TelemRateCmd.cpp
+                        FocusCmd.cpp
                        INCLUDE_DIRS 
                         .
                        REQUIRES
