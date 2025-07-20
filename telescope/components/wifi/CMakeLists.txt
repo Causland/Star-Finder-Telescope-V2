@@ -7,5 +7,6 @@ idf_component_register(SRCS
                        REQUIRES
 # system components
                         cxx
-                        log
-                        esp_wifi)
+                        esp_event
+                        esp_wifi
+                        log)

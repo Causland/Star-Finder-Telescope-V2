@@ -30,7 +30,8 @@ void TaskCollectTelemetry::threadLoop()
         continue;
       }
 
-      if (!telemSender.send(telemetry.getBuffer().data(), bytes))
+      const auto result = telemSender.send(telemetry.getBuffer().data(), bytes);
+      if (result != ESP_OK && result != ESP_ERR_NOT_ALLOWED)
       {
         ESP_LOGE(cfg.thread_name, "Failed to send telemetry data!");
         continue;

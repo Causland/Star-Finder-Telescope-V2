@@ -2,6 +2,7 @@
 #define __UDP_SENDER_H__
 
 #include <cstdint>
+#include <esp_check.h>
 #include <string>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -27,7 +28,7 @@ public:
   UDPSender& operator=(UDPSender&&) = delete;
 
   /// Send data to the destination specified during construction.
-  bool send(const uint8_t* data, const size_t& size) const;
+  esp_err_t send(const uint8_t* data, const size_t& size) const;
 
 private:
   std::string name; ///< Name of the sender, used for logging

@@ -12,8 +12,11 @@
 #include <esp_event.h>
 #include <esp_netif.h>
 
+std::atomic<bool> WifiInitializer::clientConnected{};
 std::once_flag WifiInitializer::initFlag;
 esp_netif_t* WifiInitializer::netif{nullptr};
+esp_event_handler_instance_t WifiInitializer::connectInstance;
+esp_event_handler_instance_t WifiInitializer::disconnectInstance;
 
 void WifiInitializer::initialize()
 {
@@ -28,7 +31,25 @@ WifiInitializer::~WifiInitializer()
   esp_wifi_clear_default_wifi_driver_and_handlers(netif);
   esp_netif_destroy(netif);
   esp_event_loop_delete_default();
+  esp_event_handler_instance_unregister(WIFI_EVENT, WIFI_EVENT_AP_STACONNECTED,
+                                        connectInstance);
+  esp_event_handler_instance_unregister(WIFI_EVENT, WIFI_EVENT_AP_STADISCONNECTED,
+                                        disconnectInstance);
   esp_netif_deinit();
+}
+
+void WifiInitializer::wifiAPConnectHandler(void* handlerArg, esp_event_base_t base,
+                                           int32_t id, void* eventData)
+{
+  ESP_LOGI(TAG, "Client connection detected");
+  WifiInitializer::clientConnected = true;
+}
+
+void WifiInitializer::wifiAPDisconnectHandler(void* handlerArg, esp_event_base_t base,
+                                              int32_t id, void* eventData)
+{
+  ESP_LOGI(TAG, "Client disconnect detected");
+  WifiInitializer::clientConnected = false;
 }
 
 void WifiInitializer::initWifiOnce()
@@ -49,6 +70,17 @@ void WifiInitializer::initWifiOnce()
   cfg.nvs_enable = false; // Disable NVS to avoid using flash storage
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+
+  ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                      WIFI_EVENT_AP_STACONNECTED,
+                                                      &WifiInitializer::wifiAPConnectHandler,
+                                                      nullptr,
+                                                      &connectInstance));
+  ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                      WIFI_EVENT_AP_STADISCONNECTED,
+                                                      &WifiInitializer::wifiAPDisconnectHandler,
+                                                      nullptr,
+                                                      &disconnectInstance));
 
   wifi_config_t ap_config = {};
   strncpy(reinterpret_cast<char*>(ap_config.ap.ssid), SECRET_SSID, sizeof(ap_config.ap.ssid));
