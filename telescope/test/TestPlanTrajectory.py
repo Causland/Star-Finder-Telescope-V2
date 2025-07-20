@@ -4,11 +4,11 @@ import time
 
 # Create a UDP socket
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-local_address = "192.168.1.3"
+local_address = "192.168.4.2"
 local_port = 8000
 udp_socket.bind((local_address, local_port))
 
-target_address = "192.168.1.2"
+target_address = "192.168.4.1"
 target_port = 8000
 
 # Trajectory packet in the format:
@@ -16,7 +16,7 @@ target_port = 8000
 
 # Send a trajectory with one part and one entry
 print("Sending trajectory with one part and one entry")
-packet = struct.pack("<BBBBfff", 1, 1, 1, 1, 1.0, 2.2, 3.3)
+packet = struct.pack("!BBBBfff", 1, 1, 1, 1, 1.0, 2.2, 3.3)
 udp_socket.sendto(packet, (target_address, target_port))
 time.sleep(2)
 

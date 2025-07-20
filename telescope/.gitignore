@@ -6,5 +6,7 @@ managed_components/
 **/gps_secrets.h
 sdkconfig.old
 dependencies*.lock
+**/*.jpg
+**/*.mp4
 
 .vscode/settings.json
