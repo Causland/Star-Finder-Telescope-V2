@@ -5,6 +5,7 @@ idf_component_register(SRCS
                         TaskFindPosition.cpp
                         TaskFocus.cpp
                         TaskMoveBaseServos.cpp
+                        TaskOTAUpdate.cpp
                         TaskPlanTrajectory.cpp
                         TaskReceiveCommand.cpp
                        INCLUDE_DIRS 

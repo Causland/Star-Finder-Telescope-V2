@@ -4,6 +4,7 @@ idf_component_register(SRCS
                         PlanTrajectoryCmd.cpp
                         TelemRateCmd.cpp
                         FocusCmd.cpp
+                        OTAUpdateCmd.cpp
                        INCLUDE_DIRS 
                         .
                        REQUIRES

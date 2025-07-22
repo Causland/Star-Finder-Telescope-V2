@@ -1,5 +1,6 @@
 build/
 managed_components/
+server_certs/
 
 **/secrets.h
 **/wifi_secrets.h

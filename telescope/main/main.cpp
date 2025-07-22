@@ -8,6 +8,7 @@
 #include "TaskCollectTelemetry.h"
 #include "TaskControlCamera.h"
 #include "TaskFindPosition.h"
+#include "TaskOTAUpdate.h"
 #include "TaskPlanTrajectory.h"
 #include "TaskReceiveCommand.h"
 #include "TaskFocus.h"
@@ -29,11 +30,14 @@ extern "C" void app_main()
                                                       Tasks::controlCameraCfg)};
   auto focus{std::make_shared<TaskFocus>(collectTelem->getTelemetry(),
                                          Tasks::focusCfg)};
+  auto ota{std::make_shared<TaskOTAUpdate>(collectTelem->getTelemetry(),
+                                           Tasks::otaUpdateCfg)};
 
   // Create each task and populate shared Tasks object, then provide to each
   Tasks::setTask(collectTelem, Tasks::TASK_COLLECT_TELEMETRY);
   Tasks::setTask(controlCam, Tasks::TASK_CONTROL_CAMERA);
   Tasks::setTask(findPos, Tasks::TASK_FIND_POSITION);
+  Tasks::setTask(ota, Tasks::TASK_OTA_UPDATE);
   Tasks::setTask(moveBaseServos, Tasks::TASK_MOVE_BASE_SERVOS);
   Tasks::setTask(planTrajectory, Tasks::TASK_PLAN_TRAJECTORY);
   Tasks::setTask(receiveCommand, Tasks::TASK_RECEIVE_COMMAND);

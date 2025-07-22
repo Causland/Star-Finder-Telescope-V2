@@ -8,6 +8,7 @@
 #include "PlanTrajectoryCmd.h"
 #include "TelemRateCmd.h"
 #include "FocusCmd.h"
+#include "OTAUpdateCmd.h"
 
 uint16_t TaskReceiveCommand::cmdsReceived{};
 
@@ -105,6 +106,17 @@ void TaskReceiveCommand::threadLoop()
         destTask = Tasks::getTask(Tasks::TASK_FOCUS);
         break;
       }
+      case Command::CMD_OTA_UPDATE:
+      {
+        cmd = std::make_shared<OTAUpdateCmd>();
+        if (!cmd)
+        {
+          ESP_LOGE(cfg.thread_name, "Failed to create OTA Update command!");
+          continue;
+        }
+        destTask = Tasks::getTask(Tasks::TASK_OTA_UPDATE);
+        break;
+      }
       default:
       {
         ESP_LOGE(cfg.thread_name, "Received unknown command type: %d", cmdTypeVal);
@@ -112,7 +124,6 @@ void TaskReceiveCommand::threadLoop()
       }
     }
 
-    ++cmdsReceived;
     if (!cmd->deserializeCommand(cmdBuffer.data(), bytesReceived))
     {
       ESP_LOGE(cfg.thread_name, "Failed to deserialize command %d!", cmdTypeVal);
@@ -125,6 +136,7 @@ void TaskReceiveCommand::threadLoop()
       continue;
     }
 
+    ++cmdsReceived;
     destTask->pushCmd(std::move(cmd));
     ESP_LOGD(cfg.thread_name, "Command of type %d sent to task %s",
             cmdTypeVal, destTask->getName());

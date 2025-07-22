@@ -15,6 +15,7 @@ public:
     CMD_MOVE_BASE_SERVOS,
     CMD_CONTROL_CAMERA,
     CMD_FOCUS,
+    CMD_OTA_UPDATE,
     NUM_COMMANDS,
   };
 

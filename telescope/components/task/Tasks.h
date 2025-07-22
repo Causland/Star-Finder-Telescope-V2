@@ -20,23 +20,26 @@ public:
     TASK_CONTROL_CAMERA,
     TASK_FIND_POSITION,
     TASK_FOCUS,
+    TASK_OTA_UPDATE,
     NUM_TASKS,
   };
 
   static constexpr esp_pthread_cfg_t collectTelemCfg
-                                      {4096, 2, false, "CollectTelem", 1, MALLOC_CAP_DEFAULT};
+                                      {4096, 2, false, "CollectTelem", 1, 0};
   static constexpr esp_pthread_cfg_t receiveCommandCfg
-                                      {4096, 2, false, "ReceiveCommand", 1, MALLOC_CAP_DEFAULT};
+                                      {4096, 2, false, "ReceiveCommand", 1, 0};
   static constexpr esp_pthread_cfg_t moveBaseServosCfg
-                                      {8192, 2, false, "MoveBaseServos", 1, MALLOC_CAP_DEFAULT};
+                                      {8192, 2, false, "MoveBaseServos", 1, 0};
   static constexpr esp_pthread_cfg_t planTrajectoryCfg
-                                      {4096, 2, false, "PlanTrajectory", 1, MALLOC_CAP_DEFAULT};
+                                      {4096, 2, false, "PlanTrajectory", 1, 0};
   static constexpr esp_pthread_cfg_t controlCameraCfg
-                                      {4096, 2, false, "ControlCamera", 1, MALLOC_CAP_DEFAULT};
+                                      {4096, 2, false, "ControlCamera", 1, 0};
   static constexpr esp_pthread_cfg_t findPositionCfg
-                                      {4096, 2, false, "FindGPSPos", 1, MALLOC_CAP_DEFAULT};
+                                      {4096, 2, false, "FindGPSPos", 1, 0};
   static constexpr esp_pthread_cfg_t focusCfg
-                                      {4096, 2, false, "Focus", 1, MALLOC_CAP_DEFAULT};
+                                      {4096, 2, false, "Focus", 1, 0};
+  static constexpr esp_pthread_cfg_t otaUpdateCfg
+                                      {8192, 2, false, "OTAUpdate", 1, 0};
 
   /// Set the task with the given ID to the provided task pointer. The pointer will be
   /// managed by the Tasks class and is moved into the tasks array.

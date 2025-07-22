@@ -5,7 +5,7 @@
 
 CustomTask::CustomTask(const char* name, const int& coreID, 
                        const size_t& stackSize, const size_t& priority) :
-    cfg({stackSize, priority, false, name, coreID, MALLOC_CAP_DEFAULT}) 
+    cfg({stackSize, priority, false, name, coreID, 0}) 
 {
 }
 
