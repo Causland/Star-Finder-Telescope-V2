@@ -10,6 +10,7 @@
 TaskOTAUpdate::TaskOTAUpdate(Telemetry& telemetry, const esp_pthread_cfg_t& threadConfig) :
                       CustomTask(threadConfig)
 {
+  telemetry.registerTelemFieldVersionCB(ota.getAppVersion);
 }
 
 void TaskOTAUpdate::threadLoop()

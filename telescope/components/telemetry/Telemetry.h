@@ -40,6 +40,7 @@ public:
   }
 
   // General System Info
+  TELEM_FIELD(Version, uint32_t);
   TELEM_FIELD(SystemTime, unsigned long);
   TELEM_FIELD(FreeHeap, size_t);
 

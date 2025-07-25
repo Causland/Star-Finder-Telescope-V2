@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cstring>
 #include <esp_log.h>
@@ -16,9 +17,13 @@ extern const uint8_t SERVER_CERT_PEM_END[] asm("_binary_ca_cert_pem_end");
 
 static constexpr size_t DEFAULT_HTTP_CLIENT_TIMEOUT_MS{5000};
 
+uint32_t OTAUpdater::appVersion{};
+
 OTAUpdater::OTAUpdater()
 {
   WifiInitializer::initialize();
+
+  readAppVersion();
 
   config.cert_pem = reinterpret_cast<const char*>(SERVER_CERT_PEM_START);
   config.timeout_ms = 5000;
@@ -183,4 +188,18 @@ void OTAUpdater::shutdown()
 { 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   esp_restart();
+}
+
+
+void OTAUpdater::readAppVersion()
+{
+  esp_app_desc_t appDesc;
+  esp_ota_get_partition_description(esp_ota_get_running_partition(), &appDesc);
+
+  uint32_t maj{};
+  uint32_t min{};
+  uint32_t pat{};
+  std::sscanf(appDesc.version, "v%lu.%lu.%lu", &maj, &min, &pat);
+
+  appVersion = (((maj & 0xFF) << 16) | ((min & 0xFF) << 8) | (pat & 0xFF));
 }

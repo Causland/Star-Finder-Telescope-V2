@@ -38,6 +38,7 @@ int Telemetry::serializeTelemetry()
   size_t bytesWritten{0};
 
   // Serialize each field into the buffer
+  SERIALIZE_FIELD(Version);
   SERIALIZE_FIELD(SystemTime);
   SERIALIZE_FIELD(FreeHeap);
 
