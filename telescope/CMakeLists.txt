@@ -1,6 +1,6 @@
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(PROJECT_VER "v0.14.1")
+set(PROJECT_VER "v0.14.2")
 
 # The following five lines of boilerplate have to be in your project's
 # CMakeLists in this exact order for cmake to work correctly

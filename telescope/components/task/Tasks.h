@@ -26,23 +26,23 @@ public:
   };
 
   static constexpr esp_pthread_cfg_t remoteLogCfg
-                                      {4096, 2, false, "RemoteLog", 1, 0};
+                                      {4096, 2, false, "RemoteLog", 4, 0};
   static constexpr esp_pthread_cfg_t collectTelemCfg
-                                      {4096, 2, false, "CollectTelem", 1, 0};
+                                      {4096, 2, false, "CollectTelem", 4, 0};
   static constexpr esp_pthread_cfg_t receiveCommandCfg
-                                      {4096, 2, false, "ReceiveCommand", 1, 0};
+                                      {4096, 2, false, "ReceiveCommand", 7, 0};
   static constexpr esp_pthread_cfg_t moveBaseServosCfg
-                                      {8192, 2, false, "MoveBaseServos", 1, 0};
+                                      {8192, 2, false, "MoveBaseServos", 6, 0};
   static constexpr esp_pthread_cfg_t planTrajectoryCfg
-                                      {4096, 2, false, "PlanTrajectory", 1, 0};
+                                      {4096, 2, false, "PlanTrajectory", 5, 0};
   static constexpr esp_pthread_cfg_t controlCameraCfg
-                                      {4096, 2, false, "ControlCamera", 1, 0};
+                                      {4096, 2, false, "ControlCamera", 5, 0};
   static constexpr esp_pthread_cfg_t findPositionCfg
-                                      {2048, 2, false, "FindGPSPos", 1, 0};
+                                      {2048, 2, false, "FindGPSPos", 3, 0};
   static constexpr esp_pthread_cfg_t focusCfg
-                                      {4096, 2, false, "Focus", 1, 0};
+                                      {4096, 2, false, "Focus", 6, 0};
   static constexpr esp_pthread_cfg_t otaUpdateCfg
-                                      {8192, 2, false, "OTAUpdate", 1, 0};
+                                      {8192, 2, false, "OTAUpdate", 7, 0};
 
   /// Set the task with the given ID to the provided task pointer. The pointer will be
   /// managed by the Tasks class and is moved into the tasks array.
