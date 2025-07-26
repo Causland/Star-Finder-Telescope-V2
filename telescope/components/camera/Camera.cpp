@@ -114,7 +114,8 @@ void Camera::takePhoto()
     const size_t idx{i % camBuf.size()};
     if (i != 0 && idx == 0)
     {
-      if (!cameraSender.send(camBuf.data(), camBuf.size()))
+      const auto result = cameraSender.send(camBuf.data(), camBuf.size());
+      if (result != ESP_OK && result != ESP_ERR_NOT_ALLOWED)
       {
         ESP_LOGE(TAG, "Failed to send camera data over Wifi");
       }

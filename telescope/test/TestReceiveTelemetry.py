@@ -20,8 +20,9 @@ while True:
   format = "!IIIHfffBBBqdddff"
   unpacked_data = struct.unpack(format, data)
   vals = [
-    format_version(val) if i == 0 else (f"{val:.3f}" if isinstance(val, float) else val)
+    format_version(val) if i == 0 else (f"{(val / 1000000.0):.4f}" if i == 1 else
+      (f"{val:.3f}" if isinstance(val, float) else val))
     for i, val in enumerate(unpacked_data)
   ]
 
-  print(f"Received data: {vals}")
+  print(f"{vals}")
