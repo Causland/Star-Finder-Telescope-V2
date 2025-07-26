@@ -11,12 +11,14 @@
 #include "TaskOTAUpdate.h"
 #include "TaskPlanTrajectory.h"
 #include "TaskReceiveCommand.h"
+#include "TaskRemoteLog.h"
 #include "TaskFocus.h"
 #include "Tasks.h"
 #include "Telemetry.h"
 
 extern "C" void app_main()
 {
+  auto remoteLog{std::make_shared<TaskRemoteLog>(Tasks::remoteLogCfg)};
   auto collectTelem{std::make_shared<TaskCollectTelemetry>(Tasks::collectTelemCfg)};
   auto receiveCommand{std::make_shared<TaskReceiveCommand>(collectTelem->getTelemetry(),
                                                            Tasks::receiveCommandCfg)};
@@ -34,6 +36,7 @@ extern "C" void app_main()
                                            Tasks::otaUpdateCfg)};
 
   // Create each task and populate shared Tasks object, then provide to each
+  Tasks::setTask(remoteLog, Tasks::TASK_REMOTE_LOG);
   Tasks::setTask(collectTelem, Tasks::TASK_COLLECT_TELEMETRY);
   Tasks::setTask(controlCam, Tasks::TASK_CONTROL_CAMERA);
   Tasks::setTask(findPos, Tasks::TASK_FIND_POSITION);

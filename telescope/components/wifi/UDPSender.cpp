@@ -49,7 +49,6 @@ esp_err_t UDPSender::send(const uint8_t* data, const size_t& size) const
 
   if (sockfd < 0)
   {
-    ESP_LOGE(name.c_str(), "Socket is not initialized");
     return ESP_ERR_INVALID_STATE;
   }
 
@@ -59,10 +58,8 @@ esp_err_t UDPSender::send(const uint8_t* data, const size_t& size) const
   
   if (sentBytes < 0 || static_cast<size_t>(sentBytes) != size)
   {
-    ESP_LOGE(name.c_str(), "Failed to send data: %s", strerror(errno));
     return ESP_FAIL;
   }
 
-  ESP_LOGD(name.c_str(), "Sent %zd bytes", sentBytes);
   return ESP_OK;
 }

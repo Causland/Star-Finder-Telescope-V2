@@ -13,6 +13,7 @@ public:
   /// UID for each task
   enum TaskID
   {
+    TASK_REMOTE_LOG,
     TASK_COLLECT_TELEMETRY,
     TASK_RECEIVE_COMMAND,
     TASK_MOVE_BASE_SERVOS,
@@ -24,6 +25,8 @@ public:
     NUM_TASKS,
   };
 
+  static constexpr esp_pthread_cfg_t remoteLogCfg
+                                      {4096, 2, false, "RemoteLog", 1, 0};
   static constexpr esp_pthread_cfg_t collectTelemCfg
                                       {4096, 2, false, "CollectTelem", 1, 0};
   static constexpr esp_pthread_cfg_t receiveCommandCfg
@@ -35,7 +38,7 @@ public:
   static constexpr esp_pthread_cfg_t controlCameraCfg
                                       {4096, 2, false, "ControlCamera", 1, 0};
   static constexpr esp_pthread_cfg_t findPositionCfg
-                                      {4096, 2, false, "FindGPSPos", 1, 0};
+                                      {2048, 2, false, "FindGPSPos", 1, 0};
   static constexpr esp_pthread_cfg_t focusCfg
                                       {4096, 2, false, "Focus", 1, 0};
   static constexpr esp_pthread_cfg_t otaUpdateCfg

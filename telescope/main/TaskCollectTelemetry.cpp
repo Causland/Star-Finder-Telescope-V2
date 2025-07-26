@@ -1,13 +1,12 @@
 #include <esp_log.h>
 
-#include <Command.h>
+#include "Command.h"
 #include "TaskCollectTelemetry.h"
 #include "TelemRateCmd.h"
 
 TaskCollectTelemetry::TaskCollectTelemetry(const esp_pthread_cfg_t& threadConfig) : 
                                             CustomTask(threadConfig)
 {
-
 }
 
 void TaskCollectTelemetry::threadLoop()

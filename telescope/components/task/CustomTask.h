@@ -46,7 +46,7 @@ public:
   void start();
 
   /// Stop the task thread and wait for it to finish.
-  void stop();
+  virtual void stop();
 
   /// Push a command to the task's command queue.
   ///

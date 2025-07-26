@@ -8,5 +8,6 @@ idf_component_register(SRCS
                         TaskOTAUpdate.cpp
                         TaskPlanTrajectory.cpp
                         TaskReceiveCommand.cpp
+                        TaskRemoteLog.cpp
                        INCLUDE_DIRS 
                         .)

@@ -12,5 +12,6 @@ static constexpr uint16_t WIFI_CMD_PORT{8000};
 static constexpr uint16_t WIFI_TELEM_PORT{8001};
 static constexpr uint16_t WIFI_CAMERA_PORT{8002};
 static constexpr uint16_t WIFI_OTA_PORT{8003};
+static constexpr uint16_t WIFI_LOG_PORT{8004};
 
 #endif // __NETWORK_CONSTANTS_H__
