@@ -29,10 +29,10 @@ private:
 
   static constexpr uint8_t FOCUS_SERVO_PIN{32};
   static constexpr uint16_t FOCUS_SERVO_STOP_US{1500};
-  static constexpr uint16_t FOCUS_SERVO_MIN_SPEED_OFFSET_US{50};
+  static constexpr uint16_t FOCUS_SERVO_MIN_SPEED_OFFSET_US{100};
   static constexpr uint16_t FOCUS_SERVO_MAX_SPEED_OFFSET_US{500};
-  static constexpr uint16_t FOCUS_SERVO_MIN_SPEED_DPS{27};
-  static constexpr uint16_t FOCUS_SERVO_MAX_SPEED_DPS{273};
+  static constexpr uint16_t FOCUS_SERVO_MIN_SPEED_DPS{107};
+  static constexpr uint16_t FOCUS_SERVO_MAX_SPEED_DPS{1070};
   static constexpr uint16_t FOCUS_SERVO_DEFAULT_US{FOCUS_SERVO_STOP_US};
 
   ContinuousServo focusServo{FOCUS_SERVO_PIN, FOCUS_SERVO_STOP_US, 

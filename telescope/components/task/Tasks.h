@@ -26,7 +26,7 @@ public:
   };
 
   static constexpr esp_pthread_cfg_t remoteLogCfg
-                                      {4096, 2, false, "RemoteLog", 4, 0};
+                                      {8192, 2, false, "RemoteLog", 4, 0};
   static constexpr esp_pthread_cfg_t collectTelemCfg
                                       {4096, 2, false, "CollectTelem", 4, 0};
   static constexpr esp_pthread_cfg_t receiveCommandCfg
@@ -38,7 +38,7 @@ public:
   static constexpr esp_pthread_cfg_t controlCameraCfg
                                       {4096, 2, false, "ControlCamera", 5, 0};
   static constexpr esp_pthread_cfg_t findPositionCfg
-                                      {2048, 2, false, "FindGPSPos", 3, 0};
+                                      {4096, 2, false, "FindGPSPos", 3, 0};
   static constexpr esp_pthread_cfg_t focusCfg
                                       {4096, 2, false, "Focus", 6, 0};
   static constexpr esp_pthread_cfg_t otaUpdateCfg

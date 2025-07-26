@@ -3,11 +3,33 @@ import os
 import ssl
 import sys
 
+class VerboseHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, format, *args):
+        print("Log: %s - [%s] %s" % (
+            self.client_address[0],
+            self.log_date_time_string(),
+            format % args))
+
+    def do_GET(self):
+        print(f"\n📥 Incoming GET request from {self.client_address}")
+        print(f"🌐 Path: {self.path}")
+        print("📨 Headers:")
+        for header, value in self.headers.items():
+            print(f"   {header}: {value}")
+        
+        super().do_GET()  # Handles the actual response
+        
+        print(f"✅ Sent file: {self.path}\n")
+
+    def send_response(self, code, message=None):
+        print(f"🔁 Response Code: {code} {message if message else ''}")
+        super().send_response(code, message)
+
 def start_https_server(ota_image_dir: str, server_ip: str, server_port: int,
                        server_file: str, key_file: str) -> None:
     os.chdir(ota_image_dir)
 
-    httpd = http.server.HTTPServer((server_ip, server_port), http.server.SimpleHTTPRequestHandler)
+    httpd = http.server.HTTPServer((server_ip, server_port), VerboseHandler)
 
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ssl_context.load_cert_chain(certfile=server_file, keyfile=key_file)

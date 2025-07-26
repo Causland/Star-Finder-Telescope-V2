@@ -70,7 +70,8 @@ void TaskFocus::rotateFocus(const float& degrees)
   const int numUs{degrees >= 0.0 ? FOCUS_SERVO_STOP_US + FOCUS_SERVO_MIN_SPEED_OFFSET_US :
                                    FOCUS_SERVO_STOP_US - FOCUS_SERVO_MIN_SPEED_OFFSET_US};
 
-  const auto sleepDur{std::chrono::duration<float>(degrees / FOCUS_SERVO_MIN_SPEED_DPS)};
+  const auto sleepDur{std::chrono::duration<float>(std::fabs(degrees) / FOCUS_SERVO_MIN_SPEED_DPS)};
+  ESP_LOGD(cfg.thread_name, "Setting focus servo to %i for %fs", numUs, sleepDur.count());
   focusServo.writeMicroseconds(numUs);
   std::this_thread::sleep_for(sleepDur);
   focusServo.writeMicroseconds(FOCUS_SERVO_STOP_US);
