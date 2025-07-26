@@ -1,16 +1,5 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
-  "idf.espIdfPathWin": "C:\\Users\\chris\\esp\\v5.4.1\\esp-idf",
-  "idf.pythonInstallPath": "/usr/bin/python",
-  "idf.openOcdConfigs": [
-    "interface/ftdi/esp32_devkitj_v1.cfg",
-    "target/esp32.cfg"
-  ],
-  "idf.portWin": "COM4",
-  "idf.toolsPathWin": "C:\\Users\\chris\\.espressif",
-  "idf.customExtraVars": {
-    "IDF_TARGET": "esp32"
-  },
   "idf.espIdfPath": "/opt/esp/idf",
   "idf.toolsPath": "/opt/esp",
   "files.associations": {
@@ -19,5 +8,8 @@
     "cstdint": "cpp"
   },
   "idf.port": "/dev/ttyUSB0",
-  "idf.flashType": "UART"
+  "idf.flashType": "UART",
+  "idf.pythonInstallPath": "/opt/esp/python_env/idf5.4_py3.12_env/bin/python",
+  "editor.indentSize": "tabSize",
+  "editor.tabSize": 2
 }
