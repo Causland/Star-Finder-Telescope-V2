@@ -25,8 +25,8 @@ public:
   /// @return true if deserialization was successful
   virtual bool deserializeCommand(const uint8_t* buf, const std::size_t& size) override;
 
-  float az; ///< Target horizontal angle in degrees
-  float el; ///< Target vertical angle in degrees
+  float az{}; ///< Target horizontal angle in degrees
+  float el{}; ///< Target vertical angle in degrees
 };
 
 #endif // __MOVE_BASE_SERVOS_CMD_H__

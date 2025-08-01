@@ -8,7 +8,7 @@
 class TaskRemoteLog : public CustomTask
 {
 public:
-  TaskRemoteLog(const esp_pthread_cfg_t& threadConfig);
+  explicit TaskRemoteLog(const esp_pthread_cfg_t& threadConfig);
 
   TaskRemoteLog(const TaskRemoteLog&) = delete;
   TaskRemoteLog(TaskRemoteLog&&) = delete;

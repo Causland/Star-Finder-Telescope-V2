@@ -24,9 +24,10 @@ void TaskRemoteLog::threadLoop()
 
     if (exitFlag) break;
 
-    std::string str;
+
     while (true)
     {
+      std::string str;
       {
         std::scoped_lock<std::mutex> slk{logMutex};
         if (logQueue.empty())

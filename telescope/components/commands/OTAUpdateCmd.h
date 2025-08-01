@@ -41,7 +41,7 @@ public:
   /// @return true if deserialization was successful
   virtual bool deserializeCommand(const uint8_t* buf, const std::size_t& size) override;
 
-  uint8_t filenameLen; ///< The update file name length including null terminator
+  uint8_t filenameLen{}; ///< The update file name length including null terminator
   char filename[UINT8_MAX]{}; ///< The name of the file
   
 };

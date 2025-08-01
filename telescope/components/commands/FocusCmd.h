@@ -18,7 +18,7 @@ public:
 
   struct FocusManual_t
   {
-    float degrees; ///< Degrees to rotate focus servo relative to current position
+    float degrees{}; ///< Degrees to rotate focus servo relative to current position
   };
 
   /// Serialize the command data into the provided buffer.
@@ -37,9 +37,9 @@ public:
   /// @return true if deserialization was successful
   virtual bool deserializeCommand(const uint8_t* buf, const std::size_t& size) override;
 
-  FocusCmdID focusCmdID; ///< Specifies the underlying action to perform
+  FocusCmdID focusCmdID{}; ///< Specifies the underlying action to perform
 
-  FocusManual_t man;
+  FocusManual_t man{};
 };
 
 #endif // __FOCUS_CMD_H__

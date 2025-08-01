@@ -27,7 +27,7 @@ public:
   /// @return true if deserialization was successful
   virtual bool deserializeCommand(const uint8_t* buf, const std::size_t& size) override;
 
-  uint16_t rate; ///< Telemetry rate in milliseconds
+  uint16_t rate{}; ///< Telemetry rate in milliseconds
 };
 
 #endif // __TELEM_RATE_CMD_H__

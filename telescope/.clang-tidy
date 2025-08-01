@@ -1,0 +1,27 @@
+Checks: >
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  bugprone-*,
+  portability-*,
+  misc-*,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-identifier-length,
+  -bugprone-reserved-identifier,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-pro-type-vararg,
+  -readability-function-cognitive-complexity,
+  -misc-include-cleaner,
+  -misc-header-include-cycle,
+  -cppcoreguidelines-non-private-member-variables-in-classes
+WarningsAsErrors: ''
+HeaderFileExtensions: ['h']
+HeaderFilterRegex: '^(main|components)/.*\.h'
+ImplementationFileExtensions: ['cpp']
+FormatStyle: none
+SystemHeaders: false
+
