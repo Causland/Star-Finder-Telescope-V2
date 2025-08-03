@@ -3,6 +3,8 @@
 
 #include "Command.h"
 
+/// Command to control the camera module, allowing configuration,
+/// photo capture, timelapse, and video recording.
 class ControlCameraCmd : public Command
 {
 public:
@@ -13,7 +15,16 @@ public:
     CTRL_CAM_VIDEO,
   };
 
+  /// Constructs a ControlCameraCmd object with the control camera command ID.
   ControlCameraCmd();
+
+  ControlCameraCmd(const ControlCameraCmd&) = default;
+  ControlCameraCmd(ControlCameraCmd&&) = default;
+
+  ~ControlCameraCmd() override = default;
+
+  ControlCameraCmd& operator=(const ControlCameraCmd&) = default;
+  ControlCameraCmd& operator=(ControlCameraCmd&&) = default;
 
   struct ControlCameraConfigs_t
   {
@@ -45,8 +56,8 @@ public:
   ControlCameraCmdID ctrlCmdID; ///< Specifies the underlying action to perform
   union
   {
-    ControlCameraConfigs_t cfg;
-    ControlCameraVideo_t vid;
+    ControlCameraConfigs_t cfg; ///< Configuration settings for the camera.
+    ControlCameraVideo_t vid; ///< Video parameters for recording.
   };
 };
 

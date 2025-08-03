@@ -22,7 +22,18 @@ public:
   static constexpr std::size_t MAX_CMD_SIZE{128};
   static constexpr std::size_t POS_CMD_ID{0};
 
+  /// Contructs a Command object with the specified command ID.
+  ///
+  /// @param[in] cmdID the ID of the command.
   explicit Command(const CommandID& cmdID) : id(cmdID) {}
+
+  Command(const Command&) = default;
+  Command& operator=(const Command&) = default;
+
+  virtual ~Command() = default;
+
+  Command(Command&&) = default;
+  Command& operator=(Command&&) = default;
 
   /// Serialize the command data into the provided buffer.
   ///

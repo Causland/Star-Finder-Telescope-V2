@@ -137,12 +137,14 @@ void Camera::takePhoto()
   ESP_LOGD(TAG, "Capture complete!");
 }
 
-void Camera::takeTimelapse()
+void Camera::takeTimelapse(const std::chrono::milliseconds& interval,
+                           const std::chrono::milliseconds& duration)
 {
 
 }
 
-void Camera::takeVideo()
+void Camera::takeVideo(const uint16_t fps,
+                       const std::chrono::milliseconds& duration)
 {
 
 }

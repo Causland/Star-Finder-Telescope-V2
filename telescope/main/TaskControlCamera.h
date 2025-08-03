@@ -11,7 +11,7 @@
 class TaskControlCamera : public CustomTask
 {
 public:
-  TaskControlCamera(Telemetry& telemetry, const esp_pthread_cfg_t& threadConfig);
+  explicit TaskControlCamera(const esp_pthread_cfg_t& threadConfig);
 
   TaskControlCamera(const TaskControlCamera&) = delete;
   TaskControlCamera(TaskControlCamera&&) = delete;

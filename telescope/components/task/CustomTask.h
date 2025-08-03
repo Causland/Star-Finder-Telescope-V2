@@ -28,7 +28,7 @@ public:
   /// default thread configuration if not specified.
   ///
   /// @param[in] threadConfig the thread configuration to use for the task.
-  ///                        If not specified, the default configuration is used.
+  ///                         If not specified, the default configuration is used.
   explicit CustomTask(const esp_pthread_cfg_t& threadConfig = esp_pthread_get_default_config());
 
   CustomTask(const CustomTask&) = delete;
@@ -39,7 +39,7 @@ public:
   CustomTask& operator=(const CustomTask&) = delete;
   CustomTask& operator=(CustomTask&&) = delete;
 
-  /// Get the name of the task.
+  /// @return the name of the task.
   const char* getName() const { return cfg.thread_name; }
 
   /// Start the task thread and begin the thread loop.

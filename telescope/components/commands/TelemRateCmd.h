@@ -5,11 +5,25 @@
 
 #include "Command.h"
 
+/// Command to set the telemetry rate for the telescope system.
 class TelemRateCmd : public Command
 {
 public:
+  /// Constructs a TelemRateCmd object with the telemetry rate command ID.
   TelemRateCmd();
+
+  /// Constructs a TelemRateCmd object with the specified telemetry rate.
+  ///
+  /// @param[in] rate the telemetry rate in milliseconds
   explicit TelemRateCmd(const uint16_t rate);
+
+  TelemRateCmd(const TelemRateCmd&) = default;
+  TelemRateCmd(TelemRateCmd&&) = default;
+
+  ~TelemRateCmd() override = default;
+
+  TelemRateCmd& operator=(const TelemRateCmd&) = default;
+  TelemRateCmd& operator=(TelemRateCmd&&) = default;
 
   /// Serialize the command data into the provided buffer.
   ///

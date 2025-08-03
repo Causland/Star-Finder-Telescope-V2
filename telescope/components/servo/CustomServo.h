@@ -8,6 +8,7 @@ class CustomServo
 {
 public:
   /// Create a CustomServo with a dedicated output pin and uS range.
+  ///
   /// @param[in] pinNum the physical pin number.
   /// @param[in] defaultUs the default microseconds for the servo.
   /// @param[in] minUs the minimum microseconds for the servo.
@@ -19,6 +20,11 @@ public:
   CustomServo(const CustomServo&) = delete;
   CustomServo(CustomServo&&) = delete;
 
+  virtual ~CustomServo() = default;
+
+  CustomServo& operator=(const CustomServo&) = delete;
+  CustomServo& operator=(CustomServo&&) = delete;
+
   /// Initializes the default state of the servo and attaches to the underlying resource
   void init()
   {
@@ -26,12 +32,8 @@ public:
     servo.writeMicroseconds(defaultUs);
   }
 
-  virtual ~CustomServo() = default;
-
-  CustomServo& operator=(const CustomServo&) = delete;
-  CustomServo& operator=(CustomServo&&) = delete;
-
   /// Wrapper function to write a certain microsecond value to the servo object.
+  ///
   /// @param[in] us microseconds to write.
   void writeMicroseconds(const int& us) { servo.writeMicroseconds(us); }
 
@@ -39,6 +41,7 @@ public:
   virtual void stop() = 0;
 
   /// Measure the current position of the servo.
+  ///
   /// @return the position of the servo in degrees.
   virtual double measurePosition() = 0;
 
@@ -56,15 +59,17 @@ public:
 
 protected:
   /// Measure the duty cycle of a pin using a +-100 window around the period.
+  ///
   /// @param[in] pin the pin to read the duty cycle.
   /// @param[in] periodUs the period of the full cycle in microseconds.
   /// @param[in] average the number of samples to average the duty cycle over.
   /// @param[in] timeoutMs the duration to wait for a valid duty cycle calculation in milliseconds.
+  ///
   /// @return the duty cycle. -1.0 if invalid.
   static double measureDutyCycle(const int& pin, const int& periodUs, 
                                  const int& average, const int& timeoutMs);
   
-  Servo servo; /// The underlying Servo object to control the servo.
+  Servo servo; ///< The underlying Servo object to control the servo.
 };
 
 /// A generic 360 degree continuous servo.
@@ -72,6 +77,7 @@ class ContinuousServo : public CustomServo
 {
 public:
   /// Create a ContinuousServo with a dedicated output pin, uS range, and speed properties.
+  ///
   /// @param[in] pinNum the physical pin number.
   /// @param[in] defaultUs the default microseconds for the servo.
   /// @param[in] minSpeedOffsetUs the minimum microsecond offset to cause the servo to rotate.
@@ -80,8 +86,8 @@ public:
   ///                        Used to help filter sporadic jumps in sensors.
   /// @param[in] feedbackPinNum the physical pin number of the feedback sensor. UINT8_MAX for unused
   ContinuousServo(const uint8_t pinNum, const uint16_t defaultUs,
-                   const uint16_t minSpeedOffsetUs, const uint16_t maxSpeedOffsetUs,
-                   const uint16_t maxSpeedDps, const uint8_t feedbackPinNum = UINT8_MAX) : 
+                  const uint16_t minSpeedOffsetUs, const uint16_t maxSpeedOffsetUs,
+                  const uint16_t maxSpeedDps, const uint8_t feedbackPinNum = UINT8_MAX) : 
                     CustomServo(pinNum, defaultUs, defaultUs - maxSpeedOffsetUs, defaultUs + maxSpeedOffsetUs),
                     minSpeedOffsetUs(minSpeedOffsetUs), maxSpeedOffsetUs(maxSpeedOffsetUs), 
                     maxSpeedDps(maxSpeedDps), feedbackPinNum(feedbackPinNum) 
@@ -105,30 +111,32 @@ public:
 
   /// Get the true measured angle 0-360 degrees of the sensor. This value is not
   /// adjusted for the number of turns.
+  ///
   /// @return the measured angle from 0-360 degrees.
   double getMeasuredAngle() const { return currMeasuredAngle; }
 
   /// Measure the current position of the servo.
+  ///
   /// @return the position of the servo in degrees.
   double measurePosition() override { return 0.0; }
 
-  uint16_t minSpeedOffsetUs{0}; /// Microsecond offset to cause rotation of servo.
-  uint16_t maxSpeedOffsetUs{UINT16_MAX}; /// Microsecond offset to rotate servo at max speed.
-  uint16_t maxSpeedDps{UINT16_MAX}; /// Maximum speed of the servo.
-  int turns{0}; /// The number of turns the servo has made since startup.
+  uint16_t minSpeedOffsetUs{0}; ///< Microsecond offset to cause rotation of servo.
+  uint16_t maxSpeedOffsetUs{UINT16_MAX}; ///< Microsecond offset to rotate servo at max speed.
+  uint16_t maxSpeedDps{UINT16_MAX}; ///< Maximum speed of the servo.
+  int turns{0}; ///< The number of turns the servo has made since startup.
 
-  double currMeasuredAngle{0.0}; /// The real 0-360 measured angle of the servo.
-                                 /// CustomServo::currAngle holds the angle adjusted for turns.
+  double currMeasuredAngle{0.0}; ///< The real 0-360 measured angle of the servo.
+                                 ///< CustomServo::currAngle holds the angle adjusted for turns.
 
 protected:
   /// Adjust the number of turns based on the previous and current measured angle.
   /// Uses quadrants to figure out 0-360 crossover
   void calcTurns();
 
-  uint8_t feedbackPinNum{0}; /// The physical pin number of the feedback sensor.
+  uint8_t feedbackPinNum{0}; ///< The physical pin number of the feedback sensor.
 
-  double prevMeasuredAngle{0.0}; /// The real 0-360 previous measured angle of the servo.
-                                 /// CustomServo::prevAngle holds the angle adjusted for turns.
+  double prevMeasuredAngle{0.0}; ///< The real 0-360 previous measured angle of the servo.
+                                 ///< CustomServo::prevAngle holds the angle adjusted for turns.
 };
 
 /// A ContinuousServo implementation for a Parallax 360 servo.
@@ -136,6 +144,7 @@ class Parallax360Servo : public ContinuousServo
 {
 public:
   /// Create a ContinuousServo with a dedicated output pin, uS range, and speed properties.
+  ///
   /// @param[in] pinNum the physical pin number.
   /// @param[in] defaultUs the default microseconds for the servo.
   /// @param[in] minSpeedOffsetUs the minimum microsecond offset to cause the servo to rotate.
@@ -159,6 +168,7 @@ public:
   Parallax360Servo& operator=(Parallax360Servo&&) = delete;
 
   /// Measure the position of the servo and adjust on turn count
+  ///
   /// @return the adjusted turn based position
   double measurePosition() override;
 };
@@ -169,6 +179,7 @@ class PositionalServo : public CustomServo
 {
 public:
   /// Create a PositionalServo with a dedicated output pin and uS range.
+  ///
   /// @param[in] pinNum the physical pin number.
   /// @param[in] defaultUs the default microseconds for the servo.
   /// @param[in] minUs the minimum microseconds for the servo.
@@ -199,8 +210,8 @@ public:
     return currAngle;
   }
 
-  double rangeDeg{0.0}; /// The range of motion of the servo.
-  double usPerDeg{0.0}; /// The number of microseconds for each degree of motion in the range.
+  double rangeDeg{0.0}; ///< The range of motion of the servo.
+  double usPerDeg{0.0}; ///< The number of microseconds for each degree of motion in the range.
 };
 
 #endif // __CUSTOM_SERVO_H__

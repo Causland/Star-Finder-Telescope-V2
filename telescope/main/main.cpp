@@ -28,8 +28,7 @@ extern "C" void app_main()
                                                            Tasks::moveBaseServosCfg)};
   auto findPos{std::make_shared<TaskFindPosition>(collectTelem->getTelemetry(),
                                                   Tasks::findPositionCfg)};
-  auto controlCam{std::make_shared<TaskControlCamera>(collectTelem->getTelemetry(),
-                                                      Tasks::controlCameraCfg)};
+  auto controlCam{std::make_shared<TaskControlCamera>(Tasks::controlCameraCfg)};
   auto focus{std::make_shared<TaskFocus>(collectTelem->getTelemetry(),
                                          Tasks::focusCfg)};
   auto ota{std::make_shared<TaskOTAUpdate>(collectTelem->getTelemetry(),

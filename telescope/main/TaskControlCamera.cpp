@@ -5,8 +5,7 @@
 #include "ControlCameraCmd.h"
 #include "TaskControlCamera.h"
 
-TaskControlCamera::TaskControlCamera(Telemetry& telemetry, 
-                                     const esp_pthread_cfg_t& threadConfig)
+TaskControlCamera::TaskControlCamera(const esp_pthread_cfg_t& threadConfig)
                                       : CustomTask(threadConfig)
 {
 
@@ -61,7 +60,7 @@ void TaskControlCamera::threadLoop()
         case ControlCameraCmd::CTRL_CAM_VIDEO:
         {
           ESP_LOGI(cfg.thread_name, "Received take video command. dur=%lus", camCmd->vid.duration);
-          cam.takeVideo();
+          cam.takeVideo(0, std::chrono::milliseconds(0));
           break;
         }
         default:

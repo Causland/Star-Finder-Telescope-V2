@@ -3,11 +3,27 @@
 
 #include "Command.h"
 
+/// Command to move the base servos of the telescope by specifying
+/// target angles for azimuth and elevation.
 class MoveBaseServosCmd : public Command
 {
 public:
+  /// Constructs a MoveBaseServosCmd object with move base servos command ID.
   MoveBaseServosCmd();
+
+  /// Constructs a MoveBaseServosCmd object with specified azimuth and elevation angles.
+  ///
+  /// @param[in] az target horizontal angle in degrees
+  /// @param[in] el target vertical angle in degrees
   MoveBaseServosCmd(const float& az, const float& el);
+
+  MoveBaseServosCmd(const MoveBaseServosCmd&) = default;
+  MoveBaseServosCmd(MoveBaseServosCmd&&) = default;
+
+  ~MoveBaseServosCmd() override = default;
+
+  MoveBaseServosCmd& operator=(const MoveBaseServosCmd&) = default;
+  MoveBaseServosCmd& operator=(MoveBaseServosCmd&&) = default;
 
   /// Serialize the command data into the provided buffer.
   ///

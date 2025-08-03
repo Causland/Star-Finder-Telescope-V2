@@ -33,6 +33,11 @@ public:
 
   /// Receives data from the UDP socket. This function blocks
   /// the calling thread until data is available or the socket is closed.
+  ///
+  /// @param[out] data Pointer to the buffer where received data will be stored.
+  /// @param[in] dataLen The length of the buffer to receive data into.
+  ///
+  /// @return The number of bytes received, or -1 on error.
   ssize_t receive(uint8_t* data, const size_t& dataLen) const;
 
 private:

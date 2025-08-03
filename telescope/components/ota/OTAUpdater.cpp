@@ -190,7 +190,6 @@ void OTAUpdater::shutdown()
   esp_restart();
 }
 
-
 void OTAUpdater::readAppVersion()
 {
   esp_app_desc_t appDesc;

@@ -28,6 +28,11 @@ public:
   UDPSender& operator=(UDPSender&&) = delete;
 
   /// Send data to the destination specified during construction.
+  ///
+  /// @param[in] data Pointer to the data to send.
+  /// @param[in] size The size of the data to send.
+  ///
+  /// @return ESP_OK if the data was sent successfully, an error code otherwise.
   esp_err_t send(const uint8_t* data, const size_t& size) const;
 
 private:

@@ -53,12 +53,12 @@ void TaskRemoteLog::threadLoop()
 
 int TaskRemoteLog::logOutput(const char* fmt, va_list args)
 {
-  thread_local char buf[128]{};
-  const int len{std::vsnprintf(buf, sizeof(buf), fmt, args)};
+  thread_local std::array<char, MAX_LOG_SIZE> buf{};
+  const int len{std::vsnprintf(buf.data(), buf.size(), fmt, args)};
 
   {
     std::scoped_lock<std::mutex> lk{logMutex};
-    logQueue.emplace(buf);
+    logQueue.emplace(buf.data());
     logCondVar.notify_one();
   }
 

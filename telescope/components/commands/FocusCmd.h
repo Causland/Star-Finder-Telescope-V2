@@ -5,6 +5,8 @@
 
 #include "Command.h"
 
+/// Command to control the focus of the telescope, allowing for
+/// manual and automatic focus adjustments.
 class FocusCmd : public Command
 {
 public:
@@ -14,7 +16,16 @@ public:
     FOCUS_AUTO,
   };
 
+  /// Constructs a FocusCmd object with the focus command ID.
   FocusCmd();
+
+  FocusCmd(const FocusCmd&) = default;
+  FocusCmd(FocusCmd&&) = default;
+
+  ~FocusCmd() override = default;
+
+  FocusCmd& operator=(const FocusCmd&) = default;
+  FocusCmd& operator=(FocusCmd&&) = default;
 
   struct FocusManual_t
   {
@@ -39,7 +50,7 @@ public:
 
   FocusCmdID focusCmdID{}; ///< Specifies the underlying action to perform
 
-  FocusManual_t man{};
+  FocusManual_t man{}; ///< Manual focus parameters for adjusting the focus servo.
 };
 
 #endif // __FOCUS_CMD_H__

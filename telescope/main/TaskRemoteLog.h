@@ -28,6 +28,8 @@ protected:
   void threadLoop() override;
 
 private:
+  static constexpr size_t MAX_LOG_SIZE{128}; ///< Maximum size of a log message
+
   static int logOutput(const char* fmt, va_list args);
 
   UDPSender logSender{"LogSender", WIFI_USER_ADDR, WIFI_LOG_PORT};

@@ -54,6 +54,10 @@ public:
   static bool setTask(std::shared_ptr<CustomTask> task, const TaskID& id);
 
   /// Get a pointer to the task with the given ID.
+  ///
+  /// @param[in] id the ID of the task to get.
+  ///
+  /// @return a shared pointer to the task if it exists, nullptr otherwise.
   static std::shared_ptr<CustomTask> getTask(const TaskID& id);
 
   /// Start all tasks in the system.

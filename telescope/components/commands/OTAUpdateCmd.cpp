@@ -23,7 +23,7 @@ bool OTAUpdateCmd::serializeCommand(uint8_t* buf, const std::size_t& size) const
   bytesWritten += result;
 
   if (size - bytesWritten < filenameLen) return false;
-  std::strncpy(reinterpret_cast<char*>(buf + bytesWritten), filename, filenameLen);
+  std::strncpy(reinterpret_cast<char*>(buf + bytesWritten), filename.data(), filenameLen);
 
   return true;
 }
@@ -43,7 +43,7 @@ bool OTAUpdateCmd::deserializeCommand(const uint8_t* buf, const std::size_t& siz
   bytesRead += result;
   
   if (size - bytesRead < filenameLen) return false;
-  std::strncpy(filename, reinterpret_cast<const char*>(buf + bytesRead), filenameLen);
+  std::strncpy(filename.data(), reinterpret_cast<const char*>(buf + bytesRead), filenameLen);
 
   return true;
 }

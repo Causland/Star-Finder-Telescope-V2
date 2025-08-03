@@ -5,12 +5,23 @@
 
 #include "Command.h"
 
+/// Command to plan a trajectory for the telescope. Contains multiple entries
+/// that specify the azimuth and elevation angles at specific times.
 class PlanTrajectoryCmd : public Command
 {
 public:
   static constexpr uint8_t MAX_ENTRIES_PER_TRAJECTORY_PART{10}; ///< Max number of trajectory entries in a part
 
+  /// Constructs a PlanTrajectoryCmd object with the plan trajectory command ID.
   PlanTrajectoryCmd();
+
+  PlanTrajectoryCmd(const PlanTrajectoryCmd&) = default;
+  PlanTrajectoryCmd(PlanTrajectoryCmd&&) = default;
+
+  ~PlanTrajectoryCmd() override = default;
+
+  PlanTrajectoryCmd& operator=(const PlanTrajectoryCmd&) = default;
+  PlanTrajectoryCmd& operator=(PlanTrajectoryCmd&&) = default;
 
   #pragma pack(push, 1) // Ensure no padding between struct members
   struct TrajectoryHeader_t

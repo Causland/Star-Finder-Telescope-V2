@@ -93,5 +93,5 @@ void WifiInitializer::initWifiOnce()
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
   ESP_ERROR_CHECK(esp_wifi_start());
 
-  ESP_LOGI(TAG, "Wi-Fi AP initialized: SSID=" SECRET_SSID);
+  ESP_LOGI(TAG, "Wi-Fi AP initialized: SSID=%s", SECRET_SSID);
 }
