@@ -1,7 +1,6 @@
 import dash_bootstrap_components as dbc
-from dash import html
 
-def trajectory_planner_block():
+def trajectory_planner_block() -> dbc.Card:
     return dbc.Card(
         [
             dbc.CardHeader("Trajectory Planner"),
@@ -9,10 +8,10 @@ def trajectory_planner_block():
                 [
                     dbc.ButtonGroup(
                         [
-                            dbc.Button("Search", id="btn-search", color="primary"),
-                            dbc.Button("Add", id="btn-add", color="success"),
-                            dbc.Button("Remove", id="btn-remove", color="danger"),
-                            dbc.Button("Edit", id="btn-edit", color="warning"),
+                            dbc.Button("Search", id="btn-search"),
+                            dbc.Button("Add", id="btn-add"),
+                            dbc.Button("Remove", id="btn-remove"),
+                            dbc.Button("Edit", id="btn-edit"),
                         ],
                         className="mb-3"
                     ),

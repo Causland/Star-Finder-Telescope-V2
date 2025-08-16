@@ -1,15 +1,12 @@
 from dash import html, callback, Output, Input, State, no_update
 from dash_extensions import WebSocket
-from services.network_constants import QUART_WEBSOCKET_PORT
 import json
-import time
 from layout.pid_graph import update_pid_graph
+from services.network_constants import QUART_WEBSOCKET_PORT, TELEMETRY_WEBSOCKET_PATH
 
-def telemetry_bridge_block():
+def telemetry_bridge_block() -> html.Div:
     return html.Div(
-        [
-            WebSocket(id="ws-telem", url=f"ws://localhost:{QUART_WEBSOCKET_PORT}/ws/telemetry/live")
-        ],
+        WebSocket(id="ws-telem", url=f"ws://localhost:{QUART_WEBSOCKET_PORT}{TELEMETRY_WEBSOCKET_PATH}"),
         style={"display": "none"}
     )
 
@@ -24,14 +21,15 @@ def telemetry_bridge_block():
           Output("pid-data-store", "data"),
           Output("pid-graph", "figure"),
           Output("telemetry-indicator-watchdog", "n_intervals"),
+          Output("telemetry-indicator-watchdog", "disabled"),
           Input("ws-telem", "message"),
           State("pid-data-store", "data"),
     prevent_initial_call=True
 )
-def update_telem_display(message, pid_data):
+def update_telem_display(message: dict, pid_data: dict):
     if not message:
         return "0", "N/A", "0", "0", "0.0", "0.0", "0.0", \
-               no_update, pid_data, no_update, no_update
+               no_update, pid_data, no_update, no_update, no_update
     
     data = json.loads(message["data"])
 
@@ -58,4 +56,4 @@ def update_telem_display(message, pid_data):
            f"Running: {data["traj_running"]}, Time to next: {data["time_to_next"]:.2f}s, \
             Entry: {data["traj_current_entry"]}/{data["traj_num_entries"]}", \
            pid_data, pid_figure, \
-           0
+           0, False

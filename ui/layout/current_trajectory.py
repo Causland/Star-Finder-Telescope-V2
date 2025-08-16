@@ -1,7 +1,7 @@
-import dash_bootstrap_components as dbc
 from dash import html
+import dash_bootstrap_components as dbc
 
-def current_trajectory_block():
+def current_trajectory_block() -> dbc.Card:
     return dbc.Card(
         [
             dbc.CardHeader("Current Trajectory"),

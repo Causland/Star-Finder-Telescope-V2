@@ -1,28 +1,33 @@
-import dash_bootstrap_components as dbc
 from dash import dcc
+import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 
-def pid_graph_block():
+def pid_graph_block() -> dbc.Card:
     return dbc.Card(
         [
             dbc.CardHeader("PID Controller"),
-            dbc.CardBody([
-                dcc.Graph(
-                    id="pid-graph",
-                    config={"displayModeBar": False},
-                    style={"height": "30%"},
-                ),
-                dcc.Store(id="pid-data-store", \
-                          data={"time": [], \
-                                "curr_az": [], "curr_el": [], \
-                                "speed_az": [], \
-                                "target_az": [], "target_el": []})
-            ])
+            dbc.CardBody(
+                [
+                    dcc.Graph(
+                        id="pid-graph",
+                        config={"displayModeBar": False},
+                        style={"height": "30%"},
+                    ),
+                    dcc.Store(id="pid-data-store",
+                              data={"time": [],
+                                    "curr_az": [],
+                                    "curr_el": [],
+                                    "speed_az": [],
+                                    "target_az": [],
+                                    "target_el": []}
+                    )
+                ]
+            )
         ],
         className="mb-3"
     )
 
-def update_pid_graph(data):
+def update_pid_graph(data: dict) -> go.Figure:
     fig = go.Figure()
     
     fig.add_trace(go.Scatter(

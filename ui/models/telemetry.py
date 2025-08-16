@@ -1,5 +1,5 @@
+from dataclasses import dataclass
 import struct
-from dataclasses import dataclass, asdict
 
 @dataclass
 class TelemData:
@@ -33,22 +33,10 @@ def unpack_telemetry(data: bytes) -> TelemData:
 
     # Assign fields explicitly
     (
-        version_int,
-        time,
-        free_heap,
-        cmds_received,
-        gps_lat,
-        gps_lon,
-        gps_alt,
-        traj_running,
-        traj_num_entries,
-        traj_current_entry,
-        time_to_next,
-        curr_az,
-        curr_el,
-        speed_az,
-        target_az,
-        target_el
+        version_int, time, free_heap, cmds_received,
+        gps_lat, gps_lon, gps_alt,
+        traj_running, traj_num_entries, traj_current_entry, time_to_next,
+        curr_az, curr_el, speed_az, target_az, target_el
     ) = unpacked_data
 
     return TelemData(

@@ -1,26 +1,30 @@
 import dash_bootstrap_components as dbc
 from dash import html
 
-def camera_controls_block():
+def camera_controls_block() -> dbc.Card:
     return dbc.Card(
         [
             dbc.CardHeader("Camera Controls"),
             dbc.CardBody(
                 [
-                    dbc.InputGroup(
+                    html.Div(
                         [
-                            dbc.Button("←", id="btn-cam-left"),
-                            dbc.Button("→", id="btn-cam-right"),
-                            dbc.Input(id="camera-degrees", type="number", placeholder="Degrees"),
+                            dbc.InputGroup(
+                                [
+                                    dbc.Button("←", id="btn-cam-left", style={"width": "15%"}),
+                                    dbc.Button("→", id="btn-cam-right", style={"width": "15%"}),
+                                ],
+                                className="gap-4 justify-content-center mb-1",
+                            ),
+                            dbc.Input(id="camera-degrees", type="number", placeholder="Degrees")
                         ],
-                        className="mb-3"
+                        className="mb-5"
                     ),
-                    dbc.Button("Take Photo", id="btn-take-photo", color="info"),
+                    dbc.Button("Take Photo", id="btn-take-photo", color="info", className="mb-1"),
                     html.Div(
                         html.Img(id="camera-image", src=None, style={"width": "100%", "objectFit": "contain"}),
                         id="camera-image-box",
-                        className="mt-3",
-                        style={"height": "220px", "background": "#343a40", "border": "1px dashed #6c757d"}
+                        style={"height": "300px", "background": "#343a40", "border": "1px dashed #6c757d"}
                     )
                 ]
             )

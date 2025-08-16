@@ -1,22 +1,27 @@
-import dash_bootstrap_components as dbc
 from dash import html, dcc, Output, Input, callback
-import socket, ipaddress
+import dash_bootstrap_components as dbc
+import ipaddress
+import socket
 
 APP_VERSION = "v0.0.0"
 
 header_block = dbc.Navbar(
     html.Div(
         [
-            html.Div("GUI Client IP: —", id="ip-address", className="text-white fw-semibold", style={
-                "flex": "1", "textAlign": "left", "paddingLeft": "20px", "fontSize": "18px"
-            }),
+            html.Div(
+                [
+                    html.Span("GUI Client IP:", className="pe-3 text-white fw-semibold"),
+                    html.Span(id="ip-address", className="text-white fw-semibold"),
+                ],
+                style={"flex": "1", "textAlign": "left", "paddingLeft": "20px", "fontSize": "18px"}
+            ),
             html.Div("Star Finder Telescope", className="text-white fw-bold", style={
                 "flex": "1", "textAlign": "center", "fontSize": "20px"
             }),
             html.Div(f"{APP_VERSION}", id="gui-version", className="text-white fw-semibold", style={
                 "flex": "1", "textAlign": "right", "paddingRight": "20px", "fontSize": "18px"
             }),
-            dcc.Interval(id="interval-ip-scan", interval=5000, n_intervals=0),
+            dcc.Interval(id="interval-ip-scan", interval=5000),
         ],
         style={"display": "flex", "width": "100%", "alignItems": "center"}
     ),
@@ -25,7 +30,7 @@ header_block = dbc.Navbar(
     sticky="top"
 )
 
-def list_local_ipv4_addresses():
+def list_local_ipv4_addresses() -> set:
     ips = set()
     try:
         host = socket.gethostname()
@@ -37,7 +42,7 @@ def list_local_ipv4_addresses():
         pass
     return ips
 
-def select_telescope_ip():
+def select_telescope_ip() -> str | None:
     NETWORK_CANDIDATE = ipaddress.ip_network("192.168.4.0/24")
     
     for ip in sorted(list_local_ipv4_addresses(), key=lambda ip: [int(x) for x in ip.split(".")]):
@@ -48,10 +53,8 @@ def select_telescope_ip():
             continue
     return None
 
-@callback(Output("ip-address", "children"), Input("interval-ip-scan", "n_intervals"))
-def update_ip_label(_):
+@callback(Output("ip-address", "children"),
+          Input("interval-ip-scan", "n_intervals"))
+def update_ip_label(_) -> str:
     ip = select_telescope_ip()
-    return html.Div([
-        html.Span("GUI Client IP:", style={"marginRight": "20px"}),
-        html.Span(ip or "Not Connected")
-    ])
+    return ip or "Not Connected"
