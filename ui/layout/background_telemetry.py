@@ -2,11 +2,11 @@ from dash import html, callback, Output, Input, State, no_update
 from dash_extensions import WebSocket
 import json
 from layout.pid_graph import update_pid_graph
-from services.network_constants import QUART_WEBSOCKET_PORT, TELEMETRY_WEBSOCKET_PATH
+from services.network_constants import QUART_WEB_PORT, TELEMETRY_WEBSOCKET_PATH
 
 def telemetry_bridge_block() -> html.Div:
     return html.Div(
-        WebSocket(id="ws-telem", url=f"ws://localhost:{QUART_WEBSOCKET_PORT}{TELEMETRY_WEBSOCKET_PATH}"),
+        WebSocket(id="ws-telem", url=f"ws://localhost:{QUART_WEB_PORT}{TELEMETRY_WEBSOCKET_PATH}"),
         style={"display": "none"}
     )
 

@@ -1,5 +1,5 @@
-import dash_bootstrap_components as dbc
 from dash import html
+import dash_bootstrap_components as dbc
 
 def camera_controls_block() -> dbc.Card:
     return dbc.Card(
@@ -20,7 +20,7 @@ def camera_controls_block() -> dbc.Card:
                         ],
                         className="mb-5"
                     ),
-                    dbc.Button("Take Photo", id="btn-take-photo", color="info", className="mb-1"),
+                    dbc.Button("Take Photo", id="btn-take-photo", className="mb-1"),
                     html.Div(
                         html.Img(id="camera-image", src=None, style={"width": "100%", "objectFit": "contain"}),
                         id="camera-image-box",

@@ -13,7 +13,7 @@ def trajectory_planner_block() -> dbc.Card:
                             dbc.Button("Remove", id="btn-remove"),
                             dbc.Button("Edit", id="btn-edit"),
                         ],
-                        className="mb-3"
+                        className="gap-2 mb-3"
                     ),
                     dbc.Textarea(id="planner-list", placeholder="Planned targets...", style={"height": "180px"})
                 ]

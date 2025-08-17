@@ -1,28 +1,27 @@
-from dataclasses import asdict
-from models.telemetry import TelemData
 from threading import Lock, Event
 from typing import Tuple
 
-class TelemetryBus:
+class LogDataBus:
     def __init__(self) -> None:
         self._lock = Lock()
         self._evt = Event()
-        self._latest: TelemData = TelemData()
+        self._latest: str = ""
         self._seq: int = 0 # Sequence number to avoid duplicate updates
 
-    def set(self, telem: TelemData) -> None:
+    def set(self, log: str) -> None:
         with self._lock:
-            self._latest = telem
+            self._latest = log
             self._seq += 1
             self._evt.set()
 
-    def snapshot(self) -> Tuple[TelemData, int]:
+    def snapshot(self) -> Tuple[str, int]:
         with self._lock:
             return self._latest, self._seq
 
     def to_dict(self) -> dict:
-        telem, seq = self.snapshot()
-        d = asdict(telem)
+        log, seq = self.snapshot()
+        d = dict()
+        d["log_data"] = log
         d["_seq"] = seq
         return d
 
@@ -32,4 +31,4 @@ class TelemetryBus:
             self._evt.clear()
         return ok
 
-bus = TelemetryBus()
+log_databus = LogDataBus()
