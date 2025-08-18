@@ -1,8 +1,8 @@
 from dash import html, callback, Input, State
 import dash_bootstrap_components as dbc
-import socket
-from services.network_constants import WIFI_USER_ADDR, WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT
 from models.commands import pack_telem_rate
+from services.network_constants import WIFI_USER_ADDR, WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT
+import socket
 
 def telem_rate_control_block() -> dbc.Card:
     return dbc.Card(

@@ -38,7 +38,7 @@ def status_block() -> dbc.Card:
                         [
                             html.Span(id="telemetry-indicator-dot", style=GRAY_DOT_STYLE),
                             html.Span(id="telemetry-indicator-text", children="Telemetry: waiting", className="text-muted"),
-                            dcc.Interval(id="telemetry-indicator-watchdog", interval=1000, n_intervals=0, disabled=True)
+                            dcc.Interval(id="telemetry-indicator-watchdog", interval=5000, n_intervals=0, disabled=True)
                         ],
                         className="mb-4"
                     ),
