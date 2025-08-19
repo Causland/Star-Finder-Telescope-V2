@@ -26,7 +26,7 @@ TaskMoveBaseServos::TaskMoveBaseServos(Telemetry& telemetry,
     return;
   }
 
-  horizPID = std::make_unique<PIDController>(horizServo, 5, 1.275, 3.0, 0.425);
+  horizPID = std::make_unique<PIDController>(horizServo, 10, 1.275, 3.0, 0.425);
   if (!horizPID)
   {
     ESP_LOGE(cfg.thread_name, "Failed to create horizontal servo controller");
@@ -60,11 +60,9 @@ void TaskMoveBaseServos::threadLoop()
 
   while (!exitFlag)
   {
-    // Wait for a command or exit signal with a timeout to service the PID
-    // controller of the servos
+    // Wait for a signal or timeout. We 
     std::unique_lock<std::mutex> lk(cmdMutex);
-    cv.wait_for(lk, std::chrono::milliseconds(HORIZ_SERVO_REFRESH_RATE_MS),
-                [this](){ return !cmdQueue.empty() || exitFlag; });
+    cv.wait_for(lk, std::chrono::milliseconds(HORIZ_SERVO_REFRESH_RATE_MS));
     
     if (exitFlag) break;
 
@@ -93,11 +91,12 @@ void TaskMoveBaseServos::threadLoop()
       }
     }
 
-    // Update the position of the vertical servo
+    // Update the position of the vertical
     vertServo.measurePosition();
     
     // Move the horizontal servo using the PID controller. This is called every
-    // cycle of the task
+    // cycle of the task. If the horizontal servo has settled, this will only
+    // update position and velocity measurements
     horizPID->move();
   }
 }

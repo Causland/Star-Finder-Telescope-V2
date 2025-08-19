@@ -91,6 +91,7 @@ def ota_update_handler(file_path, cert_path, key_path, _, n_intervals):
             udp_socket.bind((WIFI_USER_ADDR, WIFI_CMD_PORT))
             packet = pack_ota_update(os.path.basename(file_path))
             udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
+            udp_socket.close()
 
             interval_disabled = False
             interval_count = 0

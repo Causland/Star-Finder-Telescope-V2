@@ -30,7 +30,7 @@ def update_telem_display(message: dict, pid_data: dict):
     if not message:
         return "0", "N/A", "0", "0", "0.0", "0.0", "0.0", \
                no_update, pid_data, no_update, no_update, no_update
-    
+
     data = json.loads(message["data"])
 
     pid_data["time"].append(data["time"])

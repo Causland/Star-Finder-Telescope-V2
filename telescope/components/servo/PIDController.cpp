@@ -8,12 +8,14 @@ void PIDController::move()
 {
   const auto currUpdateMs{millis()};
 
-  // If we are out of the settling window, do not move
-  if (settlingTimeSec > 0 &&
-      currUpdateMs - targetTimeMs > settlingTimeSec * 1000)
+  // If we are out of the settling window, do not move but
+  // continue to calculate position and velocity for live telemetry
+  const bool settled{settlingTimeSec > 0 &&
+                     currUpdateMs - targetTimeMs > settlingTimeSec * 1000};
+  if (settled)
   {
     servo->stop();
-    return;
+    prevIntegral = 0;
   }
 
   // Find time between this and last call
@@ -34,50 +36,55 @@ void PIDController::move()
                                  (ANGLE_FILTER_FREQ * deltaS / (1.0 + ANGLE_FILTER_FREQ * deltaS)) * 
                                  (currAngle - prevFilteredCurrAngle)};
 
-  // Calculate error based on filtered position
-  double error{filteredCurrAngle - targetAngle};
-
-  // Calculate integral portion
-  double integral{prevIntegral + error * deltaS};
-  if (integral < -1 * (servo->minSpeedOffsetUs / K_I)) 
-      integral = -1 * (servo->minSpeedOffsetUs / K_I);
-  else if (integral > servo->minSpeedOffsetUs / K_I)
-      integral = servo->minSpeedOffsetUs / K_I;
-
   // Calculate derivative portion
   static constexpr double VEL_FILTER_FREQ{120};
   const double vel{(filteredCurrAngle - prevFilteredCurrAngle) / deltaS};
   const double filteredVel{prevFilteredVel + 
                            (VEL_FILTER_FREQ * deltaS / (1.0 + VEL_FILTER_FREQ * deltaS)) * 
                            (vel - prevFilteredVel)};
-  
-  const double propPortion{error * K_P};
-  const double integPortion{integral * K_I};
-  const double derivPortion{filteredVel * K_D};
-  const int offset{static_cast<int>(propPortion + integPortion + derivPortion)};
 
-  if (esp_log_level_get(TAG) >= ESP_LOG_DEBUG)
+  if (!settled)
   {
-    static char buf[128]{};
-    std::snprintf(buf, sizeof(buf), "%.3f, %i, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f. %.3f, %i",
-                  currUpdateMs / 1000.0,
-                  servo->turns,
-                  currAngle,
-                  filteredCurrAngle,
-                  targetAngle,
-                  error,
-                  propPortion,
-                  integPortion,
-                  derivPortion,
-                  offset);
-    ESP_LOGD(TAG, "%s", buf);
-  }
+    // Calculate error based on filtered position
+    double error{filteredCurrAngle - targetAngle};
 
-  servo->writeMicroseconds(servo->defaultUs + offset);
+    // Calculate integral portion
+    double integral{prevIntegral + error * deltaS};
+    if (integral < -1 * (servo->minSpeedOffsetUs / K_I)) 
+        integral = -1 * (servo->minSpeedOffsetUs / K_I);
+    else if (integral > servo->minSpeedOffsetUs / K_I)
+        integral = servo->minSpeedOffsetUs / K_I;
+    
+    const double propPortion{error * K_P};
+    const double integPortion{integral * K_I};
+    const double derivPortion{filteredVel * K_D};
+    const int offset{static_cast<int>(propPortion + integPortion + derivPortion)};
+
+    if (esp_log_level_get(TAG) >= ESP_LOG_DEBUG)
+    {
+      static char buf[128]{};
+      std::snprintf(buf, sizeof(buf), "%.3f, %i, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f. %.3f, %i",
+                    currUpdateMs / 1000.0,
+                    servo->turns,
+                    currAngle,
+                    filteredCurrAngle,
+                    targetAngle,
+                    error,
+                    propPortion,
+                    integPortion,
+                    derivPortion,
+                    offset);
+      ESP_LOGD(TAG, "%s", buf);
+    }
+
+    servo->writeMicroseconds(servo->defaultUs + offset);
+    
+    // Only updated when moving
+    prevIntegral = integral;
+  }
 
   // Setup for next function call
   prevFilteredCurrAngle = filteredCurrAngle;
-  prevIntegral = integral;
   prevFilteredVel = filteredVel;
   prevUpdateMs = currUpdateMs;  
 }

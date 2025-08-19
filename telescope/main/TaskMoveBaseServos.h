@@ -35,9 +35,9 @@ private:
   void processServoUpdate(const std::shared_ptr<MoveBaseServosCmd>& moveServoCmd);
 
   static constexpr uint8_t VERT_SERVO_PIN{33};
-  static constexpr uint16_t VERT_SERVO_MIN_US{860};
+  static constexpr uint16_t VERT_SERVO_MIN_US{900};
   static constexpr uint16_t VERT_SERVO_MAX_US{1490};
-  static constexpr double VERT_SERVO_MOTION_RANGE_DEG{90.0};
+  static constexpr double VERT_SERVO_MOTION_RANGE_DEG{84.2857};
 
   static constexpr uint8_t HORIZ_SERVO_PIN{26};
   static constexpr uint8_t HORIZ_SERVO_FEEDBACK_PIN{27};

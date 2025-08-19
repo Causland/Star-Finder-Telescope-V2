@@ -206,7 +206,7 @@ public:
   double measurePosition() override
   {
     prevAngle = currAngle;
-    currAngle = servo.readMicroseconds() / usPerDeg;
+    currAngle = (servo.readMicroseconds() - minUs) / usPerDeg;
     return currAngle;
   }
 
