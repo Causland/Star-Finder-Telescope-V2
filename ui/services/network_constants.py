@@ -11,4 +11,5 @@ DASH_WEB_PORT = 8050
 
 TELEMETRY_WEBSOCKET_PATH = "/ws/telemetry/live"
 LOGS_WEBSOCKET_PATH = "/ws/logs/live"
+CAMERA_WEBSOCKET_PATH = "/ws/camera/live"
 QUART_WEB_PORT = 8051

@@ -34,7 +34,7 @@ def move_controls_block():
     prevent_initial_call=True
 )
 def move_up(_, deg: float, pid_data: dict):
-    curr_az = pid_data["curr_az"][-1]
+    target_az = pid_data["target_az"][-1]
     curr_el = pid_data["curr_el"][-1]
 
     target_el = curr_el - deg
@@ -42,7 +42,7 @@ def move_up(_, deg: float, pid_data: dict):
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((WIFI_USER_ADDR, WIFI_CMD_PORT))
 
-    packet = pack_move_base_servos(curr_az, target_el)
+    packet = pack_move_base_servos(target_az, target_el)
     udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
 
     udp_socket.close()
@@ -53,7 +53,7 @@ def move_up(_, deg: float, pid_data: dict):
     prevent_initial_call=True
 )
 def move_down(_, deg: float, pid_data: dict):
-    curr_az = pid_data["curr_az"][-1]
+    target_az = pid_data["target_az"][-1]
     curr_el = pid_data["curr_el"][-1]
 
     target_el = curr_el + deg
@@ -61,7 +61,7 @@ def move_down(_, deg: float, pid_data: dict):
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((WIFI_USER_ADDR, WIFI_CMD_PORT))
 
-    packet = pack_move_base_servos(curr_az, target_el)
+    packet = pack_move_base_servos(target_az, target_el)
     udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
 
     udp_socket.close()
@@ -73,14 +73,14 @@ def move_down(_, deg: float, pid_data: dict):
 )
 def move_left(_, deg: float, pid_data: dict):
     curr_az = pid_data["curr_az"][-1]
-    curr_el = pid_data["curr_el"][-1]
+    target_el = pid_data["target_el"][-1]
 
     target_az = curr_az - deg
 
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((WIFI_USER_ADDR, WIFI_CMD_PORT))
 
-    packet = pack_move_base_servos(target_az, curr_el)
+    packet = pack_move_base_servos(target_az, target_el)
     udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
 
     udp_socket.close()
@@ -92,14 +92,14 @@ def move_left(_, deg: float, pid_data: dict):
 )
 def move_right(_, deg: float, pid_data: dict):
     curr_az = pid_data["curr_az"][-1]
-    curr_el = pid_data["curr_el"][-1]
+    target_el = pid_data["target_el"][-1]
 
     target_az = curr_az + deg
 
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_socket.bind((WIFI_USER_ADDR, WIFI_CMD_PORT))
 
-    packet = pack_move_base_servos(target_az, curr_el)
+    packet = pack_move_base_servos(target_az, target_el)
     udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
 
     udp_socket.close()
