@@ -1,4 +1,4 @@
-from dash import html, Input, Output, State, callback, no_update
+from dash import html, Input, Output, State, callback, no_update, dcc
 import dash_bootstrap_components as dbc
 from dash_extensions import WebSocket
 import json
@@ -26,6 +26,9 @@ def camera_controls_block() -> dbc.Card:
                         className="mb-5"
                     ),
                     dbc.Button("Take Photo", id="btn-take-photo", className="mb-1"),
+                    dbc.Button("Take Video", id="btn-take-video", className="mb-1"),
+                    dbc.Input(id="fps", type="number", placeholder="FPS"),
+                    dcc.Interval(id="photo-timer", interval=100, n_intervals=0, disabled=True),
                     html.Div(
                         html.Img(id="camera-image", src=None, style={"width": "100%", "height": "auto", "objectFit": "contain"}),
                         id="camera-image-box",
@@ -75,6 +78,28 @@ def take_photo(_):
     udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
 
     udp_socket.close()
+
+@callback(Output("photo-timer", "disabled"),
+          Output("photo-timer", "interval"),
+          Input("btn-take-video", "n_clicks"),
+          Input("photo-timer", "n_intervals"),
+          State("fps", "value"),
+          State("photo-timer", "disabled"),
+    prevent_initial_call=True
+)
+def take_video(_, intervals: int, fps: int, disabled: bool):
+    if disabled:
+        return False, int(1000 / fps)
+
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp_socket.bind((WIFI_USER_ADDR, WIFI_CMD_PORT))
+
+    packet = pack_control_camera_photo()
+    udp_socket.sendto(packet, (WIFI_TELESCOPE_ADDR, WIFI_CMD_PORT))
+
+    udp_socket.close()
+
+    return no_update, int(1000 / fps)
 
 @callback(Output("camera-image", "src"),
           Input("ws-camera", "message"),
